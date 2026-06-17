@@ -2,7 +2,7 @@
  * testPlanGenerator.js
  * B.L.A.S.T. Framework — AI Test Plan Engine
  *
- * Persona: Lead Quality Architect, 20+ years enterprise testing experience
+ * Persona: Lead Quality Architect
  * Supports: JIRA-issue mode & direct PRD/requirements mode
  * Model: GROQ llama-3.3-70b-versatile (or user-selected valid GROQ model)
  */

@@ -119,7 +119,7 @@ export default function GenerationPanel() {
           <div className="hero-badge">AI Quality Intelligence</div>
           <h2 className="hero-title">Enterprise Test Plan Generator</h2>
           <p className="hero-subtitle">
-            AI-powered test planning by a virtual Lead Quality Architect with 20+ years of enterprise experience.
+            AI-powered test planning by a virtual Lead Quality Architect.
             Paste your PRD, user story, feature spec, or acceptance criteria — get a full IEEE 829 test plan in seconds.
           </p>
           <div className="hero-stats">
