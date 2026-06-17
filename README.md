@@ -3,6 +3,7 @@
 **Project:** AI-Powered Test Plan Generator using React + GROQ AI  
 **Framework:** B.L.A.S.T. (Blueprint, Link, Architect, Stylize, Trigger)  
 **Status:** 100% COMPLETE ✅ | All 5 Phases Done 🏆  
+**Live App:** https://qualiaqa.vercel.app  
 **Last Updated:** June 17, 2026
 
 ---
@@ -461,7 +462,7 @@ See [PHASE_4_STYLIZE_KICKOFF.md](./PHASE_4_STYLIZE_KICKOFF.md) for:
 **Phase 5** (Complete ✅)
 - [x] Cloud deployment configured
 - [x] CI/CD pipelines set up
-- [x] Production environment ready
+- [x] Production environment ready — live at https://qualiaqa.vercel.app
 - [x] Monitoring configured
 - [x] Documentation finalized
 
@@ -477,7 +478,7 @@ Refer to the document index above for the answer. Every phase is fully documente
 
 | Document | Last Updated | Version |
 |----------|--------------|---------|
-| README.md | June 17, 2026 | 1.1 |
+| README.md | June 17, 2026 | 1.2 |
 | PHASE_3_COMPLETION_SUMMARY.md | June 11, 2026 | 1.0 |
 | PHASE_4_STYLIZE_KICKOFF.md | June 11, 2026 | 1.0 |
 | SESSION_4_SUMMARY.md | June 11, 2026 | 1.0 |
@@ -497,7 +498,8 @@ Phase 4: Stylize        ████████ 100% ✅
 Phase 5: Trigger        ████████ 100% ✅
 ```
 
-**Status:** ALL PHASES COMPLETE 🏆  
+**Status:** ALL PHASES COMPLETE 🏆 | LIVE IN PRODUCTION  
+**Live App:** https://qualiaqa.vercel.app  
 **Quality:** Production-Ready | Fully Documented  
 **Confidence:** High | All specs locked  
 
