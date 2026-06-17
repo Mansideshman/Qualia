@@ -1,6 +1,6 @@
-# 📖 JIRA Test Plan Generator - Complete Project Guide
+# 📖 AI Test Plan Generator - Complete Project Guide
 
-**Project:** JIRA Test Plan Generator using React + GROQ AI  
+**Project:** AI-Powered Test Plan Generator using React + GROQ AI  
 **Framework:** B.L.A.S.T. (Blueprint, Link, Architect, Stylize, Trigger)  
 **Status:** 100% COMPLETE ✅ | All 5 Phases Done 🏆  
 **Last Updated:** June 17, 2026
@@ -46,12 +46,12 @@ Phase 5: Trigger                ✅ COMPLETE (June 11, 2026)
 ## 🎯 Project Overview
 
 ### What This Project Does
-Automatically generates comprehensive test plans from JIRA issues using AI (GROQ/GPT). Users provide a JIRA issue key, and the system generates test cases across 5 categories: positive scenarios, negative scenarios, edge cases, security tests, and performance tests.
+Automatically generates comprehensive test plans from bug tracker issues using AI (GROQ/GPT). Users provide an issue key from any bug tracking tool (JIRA, Linear, GitHub Issues, Azure DevOps, Bugzilla, and more), and the system generates test cases across 5 categories: positive scenarios, negative scenarios, edge cases, security tests, and performance tests.
 
 ### Key Technologies
 - **Frontend:** React 18+
 - **Backend Services:** JavaScript (Node.js compatible)
-- **APIs:** JIRA Cloud (REST v3), GROQ (OpenAI-compatible)
+- **APIs:** Any Bug Tracker REST API (JIRA, Linear, GitHub Issues, Azure DevOps, etc.), GROQ (OpenAI-compatible)
 - **Styling:** Tailwind CSS
 - **Export:** Markdown, PDF, UI
 - **Storage:** localStorage
@@ -103,7 +103,7 @@ Automatically generates comprehensive test plans from JIRA issues using AI (GROQ
 **Service Files (src/services/)**
 | File | Purpose | Lines | Status |
 |------|---------|-------|--------|
-| [jiraClient.js](./src/services/jiraClient.js) | JIRA API wrapper | 161 | Production ✅ |
+| [jiraClient.js](./src/services/jiraClient.js) | Bug tracker API wrapper (JIRA & compatible tools) | 161 | Production ✅ |
 | [groqClient.js](./src/services/groqClient.js) | GROQ API wrapper | 232 | Production ✅ |
 | [testPlanGenerator.js](./src/services/testPlanGenerator.js) | Orchestration logic | 299 | Production ✅ |
 | [exportUtils.js](./src/services/exportUtils.js) | Export utilities | 447 | Production ✅ |
@@ -149,7 +149,7 @@ Automatically generates comprehensive test plans from JIRA issues using AI (GROQ
 - Validation rules
 
 **Layer 3: JavaScript Tools**
-- `jiraClient.js` - JIRA API wrapper
+- `jiraClient.js` - Bug tracker API wrapper (JIRA & compatible tools)
 - `groqClient.js` - GROQ API wrapper
 - `testPlanGenerator.js` - Orchestration
 - `exportUtils.js` - Export formats
@@ -157,11 +157,11 @@ Automatically generates comprehensive test plans from JIRA issues using AI (GROQ
 ### Data Flow (6 Stages)
 
 ```
-1. Config Input (JIRA + GROQ credentials)
+1. Config Input (Bug Tracker + GROQ credentials)
    ↓
 2. Authentication (Validate connections)
    ↓
-3. Issue Fetching (Get JIRA issue data)
+3. Issue Fetching (Get issue data from bug tracker)
    ↓
 4. Prompt Engineering (Normalize data)
    ↓
@@ -275,7 +275,7 @@ Automatically generates comprehensive test plans from JIRA issues using AI (GROQ
 ## 🔐 Security Features
 
 ✅ **Credential Management**
-- Basic Auth for JIRA
+- Auth support for multiple bug trackers (Basic, Token, OAuth)
 - Bearer token for GROQ
 - Token masking in UI
 - No hardcoded secrets
@@ -330,7 +330,7 @@ See [PHASE_4_STYLIZE_KICKOFF.md](./PHASE_4_STYLIZE_KICKOFF.md) for:
 - No external dependencies for services
 
 ### APIs
-- JIRA Cloud (v3)
+- Any Bug Tracker REST API (JIRA, Linear, GitHub Issues, Azure DevOps, Bugzilla, etc.)
 - GROQ (OpenAI-compatible)
 
 ### Storage
@@ -477,7 +477,7 @@ Refer to the document index above for the answer. Every phase is fully documente
 
 | Document | Last Updated | Version |
 |----------|--------------|---------|
-| README.md | June 11, 2026 | 1.0 |
+| README.md | June 17, 2026 | 1.1 |
 | PHASE_3_COMPLETION_SUMMARY.md | June 11, 2026 | 1.0 |
 | PHASE_4_STYLIZE_KICKOFF.md | June 11, 2026 | 1.0 |
 | SESSION_4_SUMMARY.md | June 11, 2026 | 1.0 |
