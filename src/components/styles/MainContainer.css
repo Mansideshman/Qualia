@@ -1,0 +1,18 @@
+.main-container {
+  flex: 1;
+  background: white;
+  overflow-y: auto;
+  overflow-x: auto;
+  padding: 2rem;
+  min-width: 0;
+}
+
+.main-content {
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+[data-theme="dark"] .main-container {
+  background: #0f3460;
+  color: #e0e0e0;
+}
