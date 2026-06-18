@@ -49,6 +49,17 @@ export const BT_TOOLS = {
       { key: 'repo',  label: 'Repository',            placeholder: 'e.g., my-project',   type: 'text',     hint: 'Repository name (without owner)' },
     ],
   },
+  azuredevops: {
+    id: 'azuredevops',
+    name: 'Azure DevOps',
+    icon: '🔵',
+    color: '#0078d4',
+    fields: [
+      { key: 'organization', label: 'Organization',          placeholder: 'e.g., mycompany',   type: 'text',     hint: 'dev.azure.com/{organization}' },
+      { key: 'project',      label: 'Project Name',          placeholder: 'e.g., MyProject',   type: 'text',     hint: 'Azure DevOps project name' },
+      { key: 'token',        label: 'Personal Access Token', placeholder: 'Paste PAT',         type: 'password', hint: 'User Settings > Personal Access Tokens (Work Items: Read & write scope)' },
+    ],
+  },
 };
 
 const SEV_TO_JIRA_PRI = { Critical: 'Blocker', High: 'Critical', Medium: 'Major', Low: 'Minor' };
@@ -225,14 +236,54 @@ class BugTrackerService {
     return { id: `#${data.number}`, url: data.html_url };
   }
 
+  /* ── Azure DevOps ────────────────────────────────────────────── */
+  async pushToAzureDevOps(ticket, cfg) {
+    const base = `https://dev.azure.com/${encodeURIComponent(cfg.organization)}/${encodeURIComponent(cfg.project)}`;
+    const auth  = btoa(`:${cfg.token}`);
+
+    const priority = { P0: 1, P1: 2, P2: 3, P3: 4 }[ticket.priority] || 2;
+    const severity = { Critical: '1 - Critical', High: '2 - High', Medium: '3 - Medium', Low: '4 - Low' }[ticket.severity] || '2 - High';
+
+    const patchDoc = [
+      { op: 'add', path: '/fields/System.Title',                  value: ticket.title },
+      { op: 'add', path: '/fields/System.Description',            value: buildMarkdownDesc(ticket) },
+      { op: 'add', path: '/fields/Microsoft.VSTS.Common.Priority', value: priority },
+      { op: 'add', path: '/fields/Microsoft.VSTS.Common.Severity', value: severity },
+      { op: 'add', path: '/fields/System.Tags',                   value: (ticket.jiraFields?.labels || ['ai-detected', 'ricepot']).join('; ') },
+    ];
+
+    const res = await fetch(
+      `${base}/_apis/wit/workitems/$Bug?api-version=7.1`,
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Basic ${auth}`,
+          'Content-Type': 'application/json-patch+json',
+        },
+        body: JSON.stringify(patchDoc),
+      }
+    );
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      if (res.status === 401) throw new Error('Invalid PAT — check token and Work Items scope');
+      if (res.status === 404) throw new Error(`Organization "${cfg.organization}" or project "${cfg.project}" not found`);
+      throw new Error(err.message || `Azure DevOps HTTP ${res.status}`);
+    }
+
+    const data = await res.json();
+    return { id: `#${data.id}`, url: `${base}/_workitems/edit/${data.id}` };
+  }
+
   /* ── Dispatch ────────────────────────────────────────────────── */
   async push(toolId, ticket, cfg) {
     switch (toolId) {
-      case 'jira':     return this.pushToJira(ticket, cfg);
-      case 'youtrack': return this.pushToYouTrack(ticket, cfg);
-      case 'linear':   return this.pushToLinear(ticket, cfg);
-      case 'github':   return this.pushToGitHub(ticket, cfg);
-      default:         throw new Error(`Unknown tracker: ${toolId}`);
+      case 'jira':        return this.pushToJira(ticket, cfg);
+      case 'youtrack':    return this.pushToYouTrack(ticket, cfg);
+      case 'linear':      return this.pushToLinear(ticket, cfg);
+      case 'github':      return this.pushToGitHub(ticket, cfg);
+      case 'azuredevops': return this.pushToAzureDevOps(ticket, cfg);
+      default:            throw new Error(`Unknown tracker: ${toolId}`);
     }
   }
 }

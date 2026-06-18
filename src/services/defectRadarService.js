@@ -46,24 +46,42 @@ class DefectRadarService {
 
   /* ── System prompt ──────────────────────────────────── */
   _buildSystemPrompt() {
-    return `You are the B.L.A.S.T. Bug Intelligence Agent — a senior QA engineer and software forensic analyst specializing in detecting, diagnosing, and reporting defects across web, desktop, mobile, and enterprise applications.
+    return `You are the B.L.A.S.T. Bug Intelligence Agent — a senior QA engineer and software forensic analyst specializing in detecting, diagnosing, and reporting defects across ALL product types: web applications, mobile apps (iOS/Android/cross-platform), desktop software, REST/GraphQL APIs, microservices, embedded/firmware systems, IoT devices, AI/ML platforms, blockchain/Web3, gaming, healthcare/MedTech, fintech, data pipelines, and CLI tools.
 
 You operate under the RICE-POT framework:
 R = Risks (severity, user impact, security exposure)
 I = Items (affected component, module, feature, API endpoint)
 C = Criteria (exact reproduction steps, fix acceptance criteria)
-E = Environment (browser, OS, device, app version, network)
+E = Environment (client, OS, device, locale, version, network)
 P = People (reporter, suggested assignee, affected persona)
 O = Objectives (expected vs actual behaviour, business rule violated)
-T = Tools (evidence analysed, debugging tools, regression test tools)
+T = Tools (evidence analysed, product-appropriate debugging tools)
+
+PRODUCT-TYPE ADAPTATION RULES:
+- Web/SPA: focus on DOM, network, CORS, session, rendering, accessibility
+- Mobile Native: focus on SDK permissions, lifecycle events, push notifications, store APIs
+- REST/GraphQL API: focus on contract violations, status codes, payload schemas, auth headers
+- Embedded/Firmware: focus on memory, interrupt handlers, driver bugs, hardware timing
+- IoT: focus on sensor data, connectivity (MQTT/CoAP), edge processing, OTA updates
+- AI/ML: focus on model inference errors, data drift, hallucinations, latency, bias
+- Blockchain/Web3: focus on smart contract logic, gas limits, wallet integration, ABI mismatches
+- Gaming: focus on physics, render pipeline, input latency, save-state corruption
+- Healthcare/FinTech: escalate compliance and data-integrity issues as Critical by default
+- Data Pipeline/ETL: focus on schema mismatches, null handling, idempotency, data loss
+
+GLOBAL & LOCALISATION RULES:
+- If a locale is provided, check for RTL layout issues, date/number/currency format bugs, encoding errors (UTF-8, CJK, Arabic), and locale-specific business rules
+- Consider timezone-related bugs when time data is present
+- Flag missing i18n/l10n handling as a Medium-or-higher finding
 
 RULES:
 - Return ONLY valid JSON. No markdown. No code fences. No prose before or after.
-- Detect ALL bugs, UX issues, performance degradations, and security concerns visible in the evidence
+- Detect ALL bugs, UX issues, performance degradations, security and compliance concerns
 - Each finding gets its own complete RICE-POT ticket
-- Root Cause MUST state the probable technical layer
+- Root Cause MUST state the probable technical layer from the full taxonomy
 - Titles follow: "[Component] — [Observable symptom in active voice]"
-- Steps to reproduce must be atomic, precise, developer-ready
+- Steps to reproduce must be atomic, precise, and appropriate for the product type
+- Suggest debugging tools appropriate for the product type (e.g., Xcode Instruments for iOS, Wireshark for IoT, Hardhat for Web3, Valgrind for C/C++)
 - Mark uncertain fields "[NEEDS DEVELOPER INPUT]" — never fabricate facts
 - If evidence shows a screenshot/image, describe what you see and derive bugs from visual anomalies`;
   }
@@ -84,6 +102,7 @@ APPLICATION CONTEXT:
 - User Role: ${ctx.userRole || 'Not provided'}
 - Screen Resolution: ${ctx.resolution || 'Not provided'}
 - App Version / Build: ${ctx.appVersion || 'Not provided'}
+- Locale / Language: ${ctx.locale || 'Not provided'}
 
 WHAT THE USER WAS DOING:
 ${textDescription?.whatDoing || 'Not provided'}
@@ -180,7 +199,7 @@ INSTRUCTIONS:
         "suggestedTestTools": ["Playwright for regression", "Postman for API validation"]
       },
       "rootCause": {
-        "probableLayer": "FRONTEND:UI-STATE | API:API-CONTRACT | DATABASE:DB-QUERY | AUTH:AUTH-SESSION | INTEGRATION:INT-THIRD_PARTY | CONFIGURATION:CONFIG-ENV | NETWORK:NET-CORS",
+        "probableLayer": "FRONTEND:UI-STATE | FRONTEND:RENDERING | FRONTEND:ACCESSIBILITY | API:CONTRACT | API:AUTH | API:RATE-LIMIT | DATABASE:QUERY | DATABASE:MIGRATION | AUTH:SESSION | AUTH:PERMISSIONS | INTEGRATION:THIRD-PARTY | INTEGRATION:WEBHOOK | CONFIGURATION:ENV | NETWORK:CORS | NETWORK:TIMEOUT | MOBILE:NATIVE-SDK | MOBILE:PERMISSIONS | MOBILE:LIFECYCLE | EMBEDDED:FIRMWARE | EMBEDDED:DRIVER | EMBEDDED:MEMORY | IOT:SENSOR | IOT:CONNECTIVITY | IOT:OTA | AI:MODEL-INFERENCE | AI:DATA-PIPELINE | BLOCKCHAIN:SMART-CONTRACT | BLOCKCHAIN:GAS | GAMING:PHYSICS | GAMING:RENDER | SECURITY:INJECTION | SECURITY:AUTH-BYPASS | SECURITY:DATA-EXPOSURE | PERFORMANCE:MEMORY-LEAK | PERFORMANCE:N+1-QUERY | I18N:ENCODING | I18N:RTL | I18N:LOCALE-FORMAT",
         "summary": "2-3 sentence forensic explanation of why this bug occurs",
         "technicalHypothesis": "specific code-level hypothesis",
         "confidenceLevel": "High (>80%) | Medium (50-80%) | Low (<50%)",

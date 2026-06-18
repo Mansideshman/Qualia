@@ -560,7 +560,7 @@ export default function DefectTicketDisplay({ result }) {
           </div>
           <div className="export-bar">
             <span className="export-label">Export:</span>
-            <button className="export-btn json-btn"  onClick={() => handleExport('json')}>⚙️ Jira JSON</button>
+            <button className="export-btn json-btn"  onClick={() => handleExport('json')}>⚙️ JSON Export</button>
             <button className="export-btn md-btn"    onClick={() => handleExport('markdown')}>📄 Markdown</button>
             <button className="export-btn print-btn" onClick={() => handleExport('print')}>🖨️ Print / PDF</button>
           </div>

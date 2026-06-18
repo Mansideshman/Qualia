@@ -3,28 +3,57 @@
  * DefectRadarPanel — AI-powered bug detection & root cause intelligence
  */
 
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { useConfig } from '../../context/ConfigContext';
 import DefectRadarService from '../../services/defectRadarService';
 import DefectTicketDisplay from './DefectTicketDisplay';
 import '../styles/DefectRadar.css';
 
 const APP_TYPES = [
+  // Web
   'Web Application (Browser)',
-  'Desktop Application',
-  'Mobile Web (Browser)',
-  'Enterprise Portal / Intranet',
-  'REST API / Backend Service',
+  'Single Page Application (SPA)',
+  'Progressive Web App (PWA)',
   'E-Commerce Platform',
-  'Admin Dashboard',
-  'Mobile Native App',
+  'Admin Dashboard / CMS',
+  'Enterprise Portal / Intranet',
+  // Mobile
+  'Mobile Native — iOS (Swift/Obj-C)',
+  'Mobile Native — Android (Kotlin/Java)',
+  'Mobile Cross-Platform (React Native / Flutter)',
+  'Mobile Web (Browser)',
+  // Backend & API
+  'REST API / Backend Service',
+  'GraphQL API',
+  'Microservices / Cloud-Native',
+  'CLI Tool / Script',
+  // Desktop
+  'Desktop Application (Windows)',
+  'Desktop Application (macOS)',
+  'Desktop Application (Linux / Electron)',
+  // Embedded & IoT
+  'Embedded / Firmware System',
+  'IoT Device / Edge Computing',
+  // Specialized
+  'AI / ML Platform',
+  'Blockchain / Web3 (Smart Contracts)',
+  'Gaming Application',
+  'Healthcare / MedTech System',
+  'Financial / FinTech Platform',
+  'Data Pipeline / ETL',
 ];
 
-const ENVIRONMENTS = ['Production', 'Staging', 'UAT', 'QA', 'Dev'];
+const ENVIRONMENTS = ['Production', 'Staging', 'UAT', 'QA', 'Dev', 'On-Device / Hardware'];
 
 const BROWSERS = [
+  // Web
   'Chrome (latest)', 'Firefox (latest)', 'Safari (latest)', 'Edge (latest)',
-  'Chrome Mobile', 'Safari Mobile', 'Not applicable',
+  'Chrome Mobile', 'Safari Mobile',
+  // Mobile native
+  'iOS Native App', 'Android Native App', 'React Native / Flutter App',
+  // Desktop / tools
+  'Electron (Desktop App)', 'Postman / REST Client', 'CLI / Terminal',
+  'Not applicable / Firmware',
 ];
 
 const BLAST_STAGES = [
@@ -87,6 +116,35 @@ export default function DefectRadarPanel() {
   const [userRole,    setUserRole]    = useState('');
   const [resolution,  setResolution]  = useState('');
   const [appVersion,  setAppVersion]  = useState('');
+  const [locale,      setLocale]      = useState('');
+  const [autoDetected, setAutoDetected] = useState(false);
+
+  /* ── Auto-detect environment on mount ── */
+  useEffect(() => {
+    const ua = navigator.userAgent;
+    let detectedBrowser = 'Chrome (latest)';
+    if (/Edg\//.test(ua))            detectedBrowser = 'Edge (latest)';
+    else if (/Firefox\//.test(ua))   detectedBrowser = 'Firefox (latest)';
+    else if (/Safari\//.test(ua) && !/Chrome\//.test(ua)) detectedBrowser = 'Safari (latest)';
+    else if (/Chrome\//.test(ua) && /Mobile/.test(ua))    detectedBrowser = 'Chrome Mobile';
+
+    let detectedOs = '';
+    if (/Windows NT 10/.test(ua))      detectedOs = 'Windows 11';
+    else if (/Windows NT/.test(ua))    detectedOs = 'Windows 10';
+    else if (/Mac OS X/.test(ua))      detectedOs = 'macOS ' + (ua.match(/Mac OS X ([0-9_]+)/)?.[1]?.replace(/_/g, '.') || '');
+    else if (/Android/.test(ua))       detectedOs = 'Android ' + (ua.match(/Android ([0-9.]+)/)?.[1] || '');
+    else if (/iPhone|iPad/.test(ua))   detectedOs = 'iOS ' + (ua.match(/OS ([0-9_]+)/)?.[1]?.replace(/_/g, '.') || '');
+    else if (/Linux/.test(ua))         detectedOs = 'Linux';
+
+    const detectedRes = `${window.screen.width}×${window.screen.height} (viewport ${window.innerWidth}×${window.innerHeight})`;
+    const detectedLocale = navigator.language || '';
+
+    setBrowser(detectedBrowser);
+    setOs(detectedOs);
+    setResolution(detectedRes);
+    setLocale(detectedLocale);
+    setAutoDetected(true);
+  }, []);
 
   /* ── Bug description ── */
   const [whatDoing,  setWhatDoing]  = useState('');
@@ -186,7 +244,7 @@ export default function DefectRadarPanel() {
 
       const analysisResult = await service.analyseEvidence({
         textDescription: { whatDoing, expected, actual, additional },
-        appContext: { appName, appType, appUrl, environment, browser, os, userRole, resolution, appVersion },
+        appContext: { appName, appType, appUrl, environment, browser, os, userRole, resolution, appVersion, locale },
         textFileContents,
         imageBase64List,
       });
@@ -215,9 +273,10 @@ export default function DefectRadarPanel() {
             or HAR traces — get structured bug tickets with forensic root cause analysis.
           </p>
           <div className="dr-hero-stats">
-            <div className="dr-stat"><span className="dr-stat-num">Multi</span><span className="dr-stat-label">Tracker Export</span></div>
-            <div className="dr-stat"><span className="dr-stat-num">7</span><span className="dr-stat-label">Analysis Dimensions</span></div>
-            <div className="dr-stat"><span className="dr-stat-num">Auto</span><span className="dr-stat-label">Push to Tracker</span></div>
+            <div className="dr-stat"><span className="dr-stat-num">25+</span><span className="dr-stat-label">Product Types</span></div>
+            <div className="dr-stat"><span className="dr-stat-num">5</span><span className="dr-stat-label">Bug Trackers</span></div>
+            <div className="dr-stat"><span className="dr-stat-num">7</span><span className="dr-stat-label">RICE-POT Dimensions</span></div>
+            <div className="dr-stat"><span className="dr-stat-num">Auto</span><span className="dr-stat-label">Env Detection</span></div>
             <div className="dr-stat"><span className="dr-stat-num">AI</span><span className="dr-stat-label">Root Cause</span></div>
           </div>
         </div>
@@ -300,6 +359,11 @@ export default function DefectRadarPanel() {
           <div className="defect-section-title">
             <span className="defect-section-num">02</span>
             Application Context
+            {autoDetected && (
+              <span style={{ fontSize: '0.72rem', background: '#f0fdf4', border: '1px solid #86efac', color: '#15803d', padding: '2px 10px', borderRadius: 10, fontWeight: 700, marginLeft: 'auto' }}>
+                ✅ Browser · OS · Screen auto-detected
+              </span>
+            )}
           </div>
 
           <div className="dr-form-grid-3">
@@ -350,6 +414,11 @@ export default function DefectRadarPanel() {
               <label>App Version / Build</label>
               <input type="text" value={appVersion} onChange={e => setAppVersion(e.target.value)}
                 placeholder="e.g., v2.4.1 or build #1234" />
+            </div>
+            <div className="dr-field">
+              <label>Locale / Language</label>
+              <input type="text" value={locale} onChange={e => setLocale(e.target.value)}
+                placeholder="e.g., en-US, fr-FR, ja-JP, ar-SA" />
             </div>
           </div>
         </div>
