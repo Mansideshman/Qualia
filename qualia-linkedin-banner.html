@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Qualia — LinkedIn Banner</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #0a0a0f;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    font-family: 'Inter', sans-serif;
+    padding: 40px 20px;
+  }
+
+  .download-btn {
+    margin-bottom: 24px;
+    padding: 12px 28px;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    letter-spacing: 0.02em;
+    box-shadow: 0 4px 20px rgba(99,102,241,0.4);
+  }
+
+  .download-btn:hover { opacity: 0.9; }
+
+  /* ── CARD ── */
+  #qualia-card {
+    width: 1200px;
+    min-height: 628px;
+    background: #0a0a0f;
+    border-radius: 24px;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 52px 60px 44px;
+  }
+
+  /* Animated gradient orbs */
+  .orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(90px);
+    opacity: 0.55;
+    pointer-events: none;
+  }
+  .orb-1 { width: 480px; height: 480px; background: #4f46e5; top: -140px; left: -100px; }
+  .orb-2 { width: 420px; height: 420px; background: #dc2626; top: -80px; right: -60px; opacity: 0.35; }
+  .orb-3 { width: 380px; height: 380px; background: #7c3aed; bottom: -120px; left: 320px; opacity: 0.4; }
+  .orb-4 { width: 280px; height: 280px; background: #0ea5e9; bottom: -60px; right: 80px; opacity: 0.3; }
+
+  /* Grid lines */
+  .grid-overlay {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none;
+  }
+
+  /* Top section */
+  .top-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    position: relative;
+    z-index: 2;
+  }
+
+  .left-top { display: flex; flex-direction: column; gap: 18px; }
+
+  .badge-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 14px;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border: 1px solid;
+  }
+
+  .badge-ai    { background: rgba(99,102,241,0.18); border-color: rgba(99,102,241,0.5);  color: #a5b4fc; }
+  .badge-live  { background: rgba(34,197,94,0.15);  border-color: rgba(34,197,94,0.4);   color: #86efac; }
+  .badge-blast { background: rgba(220,38,38,0.15);  border-color: rgba(220,38,38,0.4);   color: #fca5a5; }
+
+  .live-dot {
+    width: 7px; height: 7px;
+    background: #22c55e;
+    border-radius: 50%;
+    box-shadow: 0 0 6px #22c55e;
+    animation: pulse 1.6s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%,100% { box-shadow: 0 0 4px #22c55e; }
+    50%      { box-shadow: 0 0 12px #22c55e, 0 0 20px rgba(34,197,94,0.4); }
+  }
+
+  .brand-name {
+    font-size: 5.2rem;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: -0.04em;
+    background: linear-gradient(135deg, #fff 0%, #c7d2fe 45%, #a78bfa 80%, #f472b6 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .brand-tagline {
+    font-size: 1.18rem;
+    color: rgba(255,255,255,0.6);
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    max-width: 520px;
+    line-height: 1.55;
+  }
+
+  /* Right top — QR / URL card */
+  .url-card {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 16px;
+    padding: 20px 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    backdrop-filter: blur(10px);
+    flex-shrink: 0;
+  }
+
+  .url-label { font-size: 0.65rem; color: rgba(255,255,255,0.4); font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; }
+
+  .url-text {
+    font-size: 1rem;
+    font-weight: 800;
+    color: #a5b4fc;
+    letter-spacing: 0.01em;
+  }
+
+  .url-chip {
+    background: rgba(99,102,241,0.2);
+    border: 1px solid rgba(99,102,241,0.4);
+    border-radius: 8px;
+    padding: 4px 12px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #c7d2fe;
+  }
+
+  /* Feature grid */
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+    position: relative;
+    z-index: 2;
+    margin-top: 8px;
+  }
+
+  .feat-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px;
+    padding: 18px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    transition: border-color 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .feat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    border-radius: 14px 14px 0 0;
+  }
+
+  .feat-card.c1::before { background: linear-gradient(90deg, #6366f1, #8b5cf6); }
+  .feat-card.c2::before { background: linear-gradient(90deg, #dc2626, #f97316); }
+  .feat-card.c3::before { background: linear-gradient(90deg, #0ea5e9, #06b6d4); }
+  .feat-card.c4::before { background: linear-gradient(90deg, #22c55e, #16a34a); }
+  .feat-card.c5::before { background: linear-gradient(90deg, #f59e0b, #d97706); }
+
+  .feat-icon { font-size: 1.6rem; }
+
+  .feat-name {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: #f1f5f9;
+    line-height: 1.3;
+  }
+
+  .feat-desc {
+    font-size: 0.68rem;
+    color: rgba(255,255,255,0.45);
+    line-height: 1.5;
+  }
+
+  /* Bottom row */
+  .bottom-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    z-index: 2;
+    margin-top: 6px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .stats-row { display: flex; gap: 28px; align-items: center; }
+
+  .stat-item { display: flex; flex-direction: column; gap: 2px; }
+
+  .stat-num {
+    font-size: 1.6rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, #fff, #a5b4fc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+  }
+
+  .stat-label { font-size: 0.65rem; color: rgba(255,255,255,0.4); font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; }
+
+  .stat-divider { width: 1px; height: 36px; background: rgba(255,255,255,0.12); }
+
+  /* Tracker pills */
+  .tracker-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
+  .tracker-label { font-size: 0.65rem; color: rgba(255,255,255,0.35); font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin-right: 4px; }
+
+  .tracker-pill {
+    padding: 4px 11px;
+    border-radius: 20px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    border: 1px solid rgba(255,255,255,0.1);
+    color: rgba(255,255,255,0.6);
+    background: rgba(255,255,255,0.05);
+  }
+
+  /* Watermark */
+  .watermark {
+    position: absolute;
+    bottom: 18px;
+    right: 28px;
+    font-size: 0.6rem;
+    color: rgba(255,255,255,0.18);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    z-index: 2;
+  }
+</style>
+</head>
+<body>
+
+<button class="download-btn" onclick="downloadPNG()">⬇ Download as PNG</button>
+
+<div id="qualia-card">
+  <!-- Orbs -->
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+  <div class="orb orb-4"></div>
+  <div class="grid-overlay"></div>
+
+  <!-- Top Row -->
+  <div class="top-row">
+    <div class="left-top">
+      <div class="badge-row">
+        <span class="badge badge-ai">✦ AI-Powered</span>
+        <span class="badge badge-live"><span class="live-dot"></span> Live in Production</span>
+        <span class="badge badge-blast">B.L.A.S.T. Framework</span>
+      </div>
+      <div class="brand-name">Qualia</div>
+      <div class="brand-tagline">The AI QA Intelligence Platform — from test plans to bug tickets,<br/>built for every product type, every team, globally.</div>
+    </div>
+
+    <div class="url-card">
+      <div class="url-label">Try it now · Free</div>
+      <div class="url-text">qualiaqa.vercel.app</div>
+      <div class="url-chip">🚀 Live Production</div>
+    </div>
+  </div>
+
+  <!-- Feature Cards -->
+  <div class="features-grid">
+    <div class="feat-card c1">
+      <div class="feat-icon">📋</div>
+      <div class="feat-name">Test Plan Generator</div>
+      <div class="feat-desc">IEEE 829-compliant plans from any PRD or user story in seconds</div>
+    </div>
+    <div class="feat-card c2">
+      <div class="feat-icon">🔍</div>
+      <div class="feat-name">Defect Radar</div>
+      <div class="feat-desc">Upload screenshot or log → AI detects bugs & roots causes instantly</div>
+    </div>
+    <div class="feat-card c3">
+      <div class="feat-icon">⚡</div>
+      <div class="feat-name">Test Case Generator</div>
+      <div class="feat-desc">Positive, negative, edge, security & performance cases auto-generated</div>
+    </div>
+    <div class="feat-card c4">
+      <div class="feat-icon">🏗️</div>
+      <div class="feat-name">Test Strategy Builder</div>
+      <div class="feat-desc">Full strategy document from a single product description</div>
+    </div>
+    <div class="feat-card c5">
+      <div class="feat-icon">📊</div>
+      <div class="feat-name">Metrics Exporter</div>
+      <div class="feat-desc">Ready-to-share QA metrics & coverage reports on demand</div>
+    </div>
+  </div>
+
+  <!-- Bottom Row -->
+  <div class="bottom-row">
+    <div class="stats-row">
+      <div class="stat-item">
+        <span class="stat-num">25+</span>
+        <span class="stat-label">Product Types</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <span class="stat-num">5</span>
+        <span class="stat-label">Bug Trackers</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <span class="stat-num">2 min</span>
+        <span class="stat-label">vs 3 hrs manual</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <span class="stat-num">100%</span>
+        <span class="stat-label">Browser-based</span>
+      </div>
+    </div>
+
+    <div class="tracker-row">
+      <span class="tracker-label">Pushes to →</span>
+      <span class="tracker-pill">🎯 Jira</span>
+      <span class="tracker-pill">📐 Linear</span>
+      <span class="tracker-pill">🐙 GitHub</span>
+      <span class="tracker-pill">🔷 YouTrack</span>
+      <span class="tracker-pill">🔵 Azure DevOps</span>
+    </div>
+  </div>
+
+  <div class="watermark">Mansi Deshman · qualiaqa.vercel.app · github.com/Mansideshman/Qualia</div>
+</div>
+
+<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+<script>
+  async function downloadPNG() {
+    const card = document.getElementById('qualia-card');
+    const canvas = await html2canvas(card, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: '#0a0a0f',
+      logging: false,
+    });
+    const link = document.createElement('a');
+    link.download = 'Qualia-LinkedIn-Banner.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  }
+</script>
+</body>
+</html>

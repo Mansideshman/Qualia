@@ -1,0 +1,1073 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Qualia — AI QA Intelligence Platform | Demo Presentation</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;}
+
+/* ── CONTROLS ── */
+body{background:#1a1a2e;font-family:'Inter',sans-serif;display:flex;flex-direction:column;align-items:center;}
+.controls{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);display:flex;gap:12px;align-items:center;z-index:999;background:rgba(10,10,20,0.85);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.1);border-radius:50px;padding:10px 20px;}
+.ctrl-btn{padding:8px 18px;border-radius:30px;border:none;cursor:pointer;font-family:'Inter',sans-serif;font-size:0.8rem;font-weight:700;}
+.ctrl-nav{background:rgba(255,255,255,0.12);color:#fff;}
+.ctrl-nav:hover{background:rgba(255,255,255,0.2);}
+.ctrl-pdf{background:linear-gradient(135deg,#dc2626,#991b1b);color:white;box-shadow:0 2px 10px rgba(220,38,38,0.4);}
+.ctrl-pdf:hover{opacity:0.9;}
+.slide-counter{color:rgba(255,255,255,0.5);font-size:0.78rem;font-weight:600;min-width:60px;text-align:center;}
+
+/* ── SLIDE WRAPPER ── */
+.slide-show{width:100%;padding:20px 20px 100px;}
+.slide{
+  width:1280px;max-width:100%;aspect-ratio:16/9;
+  margin:0 auto 40px;
+  border-radius:18px;
+  overflow:hidden;
+  position:relative;
+  box-shadow:0 20px 80px rgba(0,0,0,0.6);
+  display:none;
+}
+.slide.active{display:flex;}
+
+/* ── SLIDE LAYOUTS ── */
+.slide-inner{width:100%;height:100%;display:flex;flex-direction:column;}
+
+/* ── COMMON ELEMENTS ── */
+.slide-num{position:absolute;bottom:22px;right:28px;font-size:0.65rem;font-weight:700;opacity:0.35;color:#fff;z-index:10;}
+.tag{display:inline-block;padding:3px 12px;border-radius:20px;font-size:0.65rem;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;}
+
+/* ═══════════════════════════════════════════════
+   SLIDE 1 — TITLE
+═══════════════════════════════════════════════ */
+#s1{background:#05050f;}
+#s1 .orb{position:absolute;border-radius:50%;filter:blur(100px);pointer-events:none;}
+#s1 .o1{width:600px;height:600px;background:#4f46e5;top:-200px;left:-150px;opacity:0.5;}
+#s1 .o2{width:500px;height:500px;background:#dc2626;top:-100px;right:-100px;opacity:0.3;}
+#s1 .o3{width:400px;height:400px;background:#7c3aed;bottom:-150px;left:400px;opacity:0.35;}
+#s1 .grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.03) 1px,transparent 1px);background-size:60px 60px;}
+#s1 .content{position:relative;z-index:2;display:flex;height:100%;align-items:center;padding:60px 80px;}
+#s1 .left{flex:1;}
+#s1 .badge-row{display:flex;gap:8px;margin-bottom:24px;}
+#s1 .b1{background:rgba(99,102,241,0.2);border:1px solid rgba(99,102,241,0.5);color:#a5b4fc;}
+#s1 .b2{background:rgba(34,197,94,0.15);border:1px solid rgba(34,197,94,0.4);color:#86efac;}
+#s1 .logo{font-size:6rem;font-weight:900;letter-spacing:-0.04em;background:linear-gradient(135deg,#fff 0%,#c7d2fe 40%,#a78bfa 70%,#f472b6 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1;}
+#s1 .tagline{font-size:1.4rem;color:rgba(255,255,255,0.65);font-weight:400;margin:16px 0 32px;line-height:1.6;max-width:560px;}
+#s1 .meta{font-size:0.85rem;color:rgba(255,255,255,0.4);}
+#s1 .meta strong{color:rgba(255,255,255,0.75);}
+#s1 .right{display:flex;flex-direction:column;gap:10px;align-items:flex-end;}
+#s1 .stat-box{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:18px 24px;text-align:center;min-width:140px;}
+#s1 .sn{font-size:2rem;font-weight:900;background:linear-gradient(135deg,#fff,#a5b4fc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+#s1 .sl{font-size:0.62rem;color:rgba(255,255,255,0.4);font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin-top:3px;}
+
+/* ═══════════════════════════════════════════════
+   SLIDE 2 — THE PROBLEM
+═══════════════════════════════════════════════ */
+#s2{background:#fafafa;}
+#s2 .top-bar{background:linear-gradient(135deg,#1e1b4b,#3730a3);padding:28px 60px;color:white;}
+#s2 .top-bar h2{font-size:2rem;font-weight:800;letter-spacing:-0.02em;}
+#s2 .top-bar p{font-size:0.9rem;opacity:0.7;margin-top:4px;}
+#s2 .body{flex:1;padding:32px 60px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;align-items:center;}
+#s2 .prob-card{background:#fff;border:1.5px solid #e5e7eb;border-radius:16px;padding:24px;height:100%;display:flex;flex-direction:column;gap:12px;box-shadow:0 2px 12px rgba(0,0,0,0.06);}
+#s2 .prob-icon{font-size:2.4rem;}
+#s2 .prob-title{font-size:1rem;font-weight:800;color:#1f2937;}
+#s2 .prob-desc{font-size:0.8rem;color:#4b5563;line-height:1.7;}
+#s2 .prob-stat{margin-top:auto;background:#fef2f2;border-radius:8px;padding:8px 14px;font-size:0.78rem;font-weight:700;color:#dc2626;}
+
+/* ═══════════════════════════════════════════════
+   SLIDE 3 — WHAT IS VIBE CODING
+═══════════════════════════════════════════════ */
+#s3{background:#05050f;}
+#s3 .header{background:linear-gradient(135deg,#0c4a6e,#0369a1);padding:28px 60px;color:white;}
+#s3 .header h2{font-size:2rem;font-weight:800;}
+#s3 .header p{font-size:0.88rem;opacity:0.7;margin-top:4px;}
+#s3 .body{flex:1;padding:28px 60px;display:grid;grid-template-columns:1.2fr 1fr;gap:24px;align-items:start;background:#f8fafc;}
+#s3 .flow{display:flex;flex-direction:column;gap:12px;}
+#s3 .flow-step{display:flex;gap:14px;align-items:flex-start;background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:14px 18px;box-shadow:0 1px 4px rgba(0,0,0,0.05);}
+#s3 .step-num{background:linear-gradient(135deg,#0369a1,#0284c7);color:white;font-size:0.72rem;font-weight:900;padding:4px 9px;border-radius:6px;flex-shrink:0;margin-top:2px;}
+#s3 .step-text h4{font-size:0.82rem;font-weight:700;color:#1f2937;margin-bottom:3px;}
+#s3 .step-text p{font-size:0.72rem;color:#6b7280;line-height:1.5;}
+#s3 .vs-box{display:flex;flex-direction:column;gap:12px;}
+#s3 .vs-card{border-radius:14px;padding:18px 20px;}
+#s3 .vs-old{background:#fef2f2;border:1.5px solid #fecaca;}
+#s3 .vs-new{background:#f0fdf4;border:1.5px solid #bbf7d0;}
+#s3 .vs-label{font-size:0.68rem;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px;}
+#s3 .vs-old .vs-label{color:#dc2626;}
+#s3 .vs-new .vs-label{color:#15803d;}
+#s3 .vs-item{font-size:0.75rem;color:#4b5563;padding-left:14px;position:relative;margin-bottom:4px;line-height:1.5;}
+#s3 .vs-item::before{content:'→';position:absolute;left:0;font-weight:700;}
+#s3 .vs-old .vs-item::before{color:#dc2626;}
+#s3 .vs-new .vs-item::before{color:#15803d;}
+
+/* ═══════════════════════════════════════════════
+   SLIDE 4 — WHAT IS AN AI AGENT
+═══════════════════════════════════════════════ */
+#s4{background:#f8fafc;}
+#s4 .header{background:linear-gradient(135deg,#052e16,#166534);padding:28px 60px;color:white;}
+#s4 .header h2{font-size:2rem;font-weight:800;}
+#s4 .header p{font-size:0.88rem;opacity:0.7;margin-top:4px;}
+#s4 .body{flex:1;padding:28px 60px;display:flex;flex-direction:column;gap:20px;background:#f8fafc;}
+#s4 .agent-flow{display:flex;align-items:center;gap:0;background:#fff;border:1px solid #e5e7eb;border-radius:16px;padding:20px 24px;box-shadow:0 2px 8px rgba(0,0,0,0.06);}
+#s4 .af-box{flex:1;text-align:center;padding:14px 10px;}
+#s4 .af-icon{font-size:2rem;margin-bottom:6px;}
+#s4 .af-label{font-size:0.72rem;font-weight:800;color:#1f2937;margin-bottom:3px;}
+#s4 .af-sub{font-size:0.65rem;color:#9ca3af;line-height:1.4;}
+#s4 .af-arrow{font-size:1.4rem;color:#d1d5db;padding:0 4px;}
+#s4 .af-brain{background:linear-gradient(135deg,#1e1b4b,#3730a3);border-radius:12px;color:white;}
+#s4 .af-brain .af-label{color:white;}
+#s4 .af-brain .af-sub{color:rgba(255,255,255,0.6);}
+#s4 .qualia-agent{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;}
+#s4 .qa-card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:14px;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,0.05);}
+#s4 .qa-icon{font-size:1.4rem;margin-bottom:6px;}
+#s4 .qa-name{font-size:0.7rem;font-weight:700;color:#1f2937;line-height:1.3;}
+#s4 .qa-detail{font-size:0.62rem;color:#9ca3af;margin-top:3px;line-height:1.4;}
+
+/* ═══════════════════════════════════════════════
+   SLIDE 5 — BLAST OVERVIEW
+═══════════════════════════════════════════════ */
+#s5{background:#05050f;}
+#s5 .inner{position:relative;z-index:2;display:flex;flex-direction:column;height:100%;}
+#s5 .orb{position:absolute;border-radius:50%;filter:blur(80px);pointer-events:none;}
+#s5 .o1{width:400px;height:400px;background:#dc2626;top:-100px;right:-80px;opacity:0.25;}
+#s5 .o2{width:350px;height:350px;background:#4f46e5;bottom:-80px;left:-60px;opacity:0.25;}
+#s5 .header{padding:28px 60px;color:white;position:relative;z-index:2;}
+#s5 .header h2{font-size:2rem;font-weight:800;letter-spacing:-0.02em;}
+#s5 .header .sub{font-size:0.9rem;color:rgba(255,255,255,0.5);margin-top:4px;}
+#s5 .blast-grid{flex:1;display:grid;grid-template-columns:repeat(5,1fr);gap:0;position:relative;z-index:2;}
+#s5 .blast-col{display:flex;flex-direction:column;padding:24px 20px;border-right:1px solid rgba(255,255,255,0.06);}
+#s5 .blast-col:last-child{border-right:none;}
+#s5 .blast-letter{font-size:3.5rem;font-weight:900;line-height:1;margin-bottom:8px;}
+#s5 .blast-word{font-size:0.75rem;font-weight:800;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:14px;}
+#s5 .blast-desc{font-size:0.72rem;color:rgba(255,255,255,0.45);line-height:1.6;margin-bottom:14px;}
+#s5 .blast-items{display:flex;flex-direction:column;gap:5px;}
+#s5 .bi{font-size:0.68rem;color:rgba(255,255,255,0.4);padding-left:10px;position:relative;}
+#s5 .bi::before{content:'·';position:absolute;left:0;font-weight:700;}
+.lb{color:#6366f1;}.lr{color:#ef4444;}.la{color:#f59e0b;}.ls{color:#22c55e;}.lt{color:#a78bfa;}
+#s5 .blast-col:nth-child(1) .blast-letter{color:#6366f1;}
+#s5 .blast-col:nth-child(2) .blast-letter{color:#ef4444;}
+#s5 .blast-col:nth-child(3) .blast-letter{color:#f59e0b;}
+#s5 .blast-col:nth-child(4) .blast-letter{color:#22c55e;}
+#s5 .blast-col:nth-child(5) .blast-letter{color:#a78bfa;}
+
+/* ═══════════════════════════════════════════════
+   SLIDES 6-10 — B.L.A.S.T DETAIL SLIDES
+═══════════════════════════════════════════════ */
+.detail-slide{flex-direction:row!important;}
+.detail-left{width:220px;flex-shrink:0;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:8px;}
+.detail-right{flex:1;padding:30px 36px;overflow:hidden;}
+.big-letter{font-size:9rem;font-weight:900;line-height:1;opacity:0.12;position:absolute;right:20px;top:50%;transform:translateY(-50%);}
+.detail-title{font-size:1.4rem;font-weight:800;margin-bottom:4px;}
+.detail-word{font-size:0.8rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;opacity:0.6;margin-bottom:16px;}
+.detail-body{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.dc{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:14px 16px;}
+.dc.light-mode{background:#fff;border-color:#e5e7eb;box-shadow:0 1px 4px rgba(0,0,0,0.05);}
+.dc-title{font-size:0.72rem;font-weight:800;margin-bottom:8px;}
+.dc-item{font-size:0.7rem;padding-left:12px;position:relative;margin-bottom:4px;line-height:1.5;opacity:0.8;}
+.dc-item::before{content:'→';position:absolute;left:0;font-weight:700;opacity:0.6;}
+.qualia-example{background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:12px 14px;margin-top:10px;font-family:'JetBrains Mono',monospace;font-size:0.68rem;color:#86efac;line-height:1.7;}
+.qualia-example.light{background:#f9fafb;border-color:#e5e7eb;color:#1f2937;font-family:'Inter',sans-serif;}
+
+/* ── B ── */
+#s6{background:linear-gradient(160deg,#0f0a2a 0%,#1e1b4b 50%,#0f0a2a 100%);}
+#s6 .detail-left{background:linear-gradient(180deg,#312e81,#1e1b4b);}
+#s6 .big-letter{color:#6366f1;}
+#s6 .detail-title{color:#a5b4fc;}
+#s6 .detail-word{color:#818cf8;}
+#s6 .dc-title{color:#a5b4fc;}
+#s6 .dc-item{color:rgba(255,255,255,0.7);}
+/* ── L ── */
+#s7{background:linear-gradient(160deg,#1a0505 0%,#3b0e0e 50%,#1a0505 100%);}
+#s7 .detail-left{background:linear-gradient(180deg,#7f1d1d,#450a0a);}
+#s7 .big-letter{color:#ef4444;}
+#s7 .detail-title{color:#fca5a5;}
+#s7 .detail-word{color:#f87171;}
+#s7 .dc-title{color:#fca5a5;}
+#s7 .dc-item{color:rgba(255,255,255,0.7);}
+/* ── A ── */
+#s8{background:linear-gradient(160deg,#1c1000 0%,#3d2900 50%,#1c1000 100%);}
+#s8 .detail-left{background:linear-gradient(180deg,#92400e,#451a03);}
+#s8 .big-letter{color:#f59e0b;}
+#s8 .detail-title{color:#fcd34d;}
+#s8 .detail-word{color:#fbbf24;}
+#s8 .dc-title{color:#fcd34d;}
+#s8 .dc-item{color:rgba(255,255,255,0.7);}
+/* ── S ── */
+#s9{background:linear-gradient(160deg,#001a08 0%,#052e16 50%,#001a08 100%);}
+#s9 .detail-left{background:linear-gradient(180deg,#14532d,#052e16);}
+#s9 .big-letter{color:#22c55e;}
+#s9 .detail-title{color:#86efac;}
+#s9 .detail-word{color:#4ade80;}
+#s9 .dc-title{color:#86efac;}
+#s9 .dc-item{color:rgba(255,255,255,0.7);}
+/* ── T ── */
+#s10{background:linear-gradient(160deg,#150520 0%,#2e1065 50%,#150520 100%);}
+#s10 .detail-left{background:linear-gradient(180deg,#4c1d95,#2e1065);}
+#s10 .big-letter{color:#a78bfa;}
+#s10 .detail-title{color:#c4b5fd;}
+#s10 .detail-word{color:#a78bfa;}
+#s10 .dc-title{color:#c4b5fd;}
+#s10 .dc-item{color:rgba(255,255,255,0.7);}
+
+.dl-icon-big{font-size:4rem;margin-bottom:8px;}
+.dl-tag{padding:5px 14px;border-radius:20px;font-size:0.72rem;font-weight:800;color:white;}
+
+/* ═══════════════════════════════════════════════
+   SLIDE 11 — RICE-POT
+═══════════════════════════════════════════════ */
+#s11{background:#f8fafc;}
+#s11 .header{background:linear-gradient(135deg,#0f172a,#1e1b4b,#3730a3);padding:24px 60px;color:white;}
+#s11 .header h2{font-size:1.9rem;font-weight:800;}
+#s11 .header p{font-size:0.85rem;opacity:0.65;margin-top:4px;}
+#s11 .body{flex:1;padding:24px 48px;display:grid;grid-template-columns:repeat(7,1fr);gap:10px;align-items:center;}
+#s11 .rp-col{display:flex;flex-direction:column;gap:8px;}
+#s11 .rp-letter{font-size:2.4rem;font-weight:900;line-height:1;}
+#s11 .rp-word{font-size:0.65rem;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;}
+#s11 .rp-card{background:#fff;border:1.5px solid #e5e7eb;border-radius:10px;padding:10px 12px;box-shadow:0 1px 4px rgba(0,0,0,0.05);}
+#s11 .rp-q{font-size:0.65rem;font-weight:700;color:#4b5563;margin-bottom:4px;}
+#s11 .rp-a{font-size:0.62rem;color:#6b7280;line-height:1.5;}
+.rp-r{color:#dc2626;}.rp-i{color:#d97706;}.rp-c{color:#ca8a04;}.rp-e{color:#16a34a;}.rp-p{color:#0284c7;}.rp-o{color:#7c3aed;}.rp-t{color:#db2777;}
+
+/* ═══════════════════════════════════════════════
+   SLIDE 12 — AI PIPELINE FLOW
+═══════════════════════════════════════════════ */
+#s12{background:#05050f;}
+#s12 .header{padding:24px 60px;color:white;border-bottom:1px solid rgba(255,255,255,0.07);}
+#s12 .header h2{font-size:1.9rem;font-weight:800;}
+#s12 .header p{font-size:0.85rem;color:rgba(255,255,255,0.5);margin-top:4px;}
+#s12 .body{flex:1;padding:20px 60px;display:flex;flex-direction:column;gap:16px;justify-content:center;}
+#s12 .pipeline{display:flex;align-items:center;gap:0;flex-wrap:nowrap;}
+#s12 .pp{display:flex;flex-direction:column;align-items:center;gap:6px;flex:1;min-width:0;}
+#s12 .pp-icon{font-size:1.8rem;}
+#s12 .pp-box{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:10px;text-align:center;width:100%;font-size:0.7rem;font-weight:700;color:rgba(255,255,255,0.8);line-height:1.4;}
+#s12 .pp-sub{font-size:0.58rem;color:rgba(255,255,255,0.35);text-align:center;line-height:1.4;}
+#s12 .pp-arrow{color:rgba(255,255,255,0.2);font-size:1.2rem;flex-shrink:0;padding:0 4px;}
+#s12 .pp.highlight .pp-box{background:rgba(220,38,38,0.15);border-color:rgba(220,38,38,0.4);color:#fca5a5;}
+#s12 .tech-row{display:flex;gap:10px;flex-wrap:wrap;}
+#s12 .tech-pill{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:6px 14px;font-size:0.72rem;font-weight:700;color:rgba(255,255,255,0.6);}
+#s12 .tech-pill span{margin-right:4px;}
+
+/* ═══════════════════════════════════════════════
+   SLIDE 13 — AI IN TESTING (TRADITIONAL VS AI)
+═══════════════════════════════════════════════ */
+#s13{background:#fafafa;}
+#s13 .header{background:linear-gradient(135deg,#1e1b4b,#312e81,#4f46e5);padding:24px 60px;color:white;}
+#s13 .header h2{font-size:1.9rem;font-weight:800;}
+#s13 .header p{font-size:0.85rem;opacity:0.65;margin-top:4px;}
+#s13 .body{flex:1;padding:24px 48px;display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start;}
+#s13 .col-title{font-size:0.82rem;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid;}
+#s13 .old-col .col-title{color:#dc2626;border-color:#dc2626;}
+#s13 .new-col .col-title{color:#15803d;border-color:#15803d;}
+#s13 .comp-row{display:flex;gap:12px;margin-bottom:10px;}
+#s13 .comp-task{font-size:0.72rem;font-weight:700;color:#4b5563;width:110px;flex-shrink:0;padding-top:2px;}
+#s13 .comp-bar-bg{flex:1;height:22px;background:#f3f4f6;border-radius:6px;overflow:hidden;position:relative;}
+#s13 .comp-bar{height:100%;border-radius:6px;display:flex;align-items:center;padding-left:8px;font-size:0.65rem;font-weight:800;color:white;}
+#s13 .bar-old{background:linear-gradient(90deg,#dc2626,#ef4444);}
+#s13 .bar-new{background:linear-gradient(90deg,#15803d,#22c55e);}
+
+/* ═══════════════════════════════════════════════
+   SLIDE 14 — HOW I BUILT IT (JOURNEY)
+═══════════════════════════════════════════════ */
+#s14{background:#f8fafc;}
+#s14 .header{background:linear-gradient(135deg,#1c1000,#92400e,#d97706);padding:24px 60px;color:white;}
+#s14 .header h2{font-size:1.9rem;font-weight:800;}
+#s14 .header p{font-size:0.85rem;opacity:0.7;margin-top:4px;}
+#s14 .body{flex:1;padding:24px 48px;display:flex;flex-direction:column;gap:12px;}
+#s14 .journey{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;}
+#s14 .j-card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:16px;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,0.05);position:relative;}
+#s14 .j-num{position:absolute;top:-8px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#d97706,#92400e);color:white;font-size:0.65rem;font-weight:800;padding:2px 9px;border-radius:10px;}
+#s14 .j-icon{font-size:1.8rem;margin:8px 0 8px;}
+#s14 .j-title{font-size:0.78rem;font-weight:800;color:#1f2937;margin-bottom:4px;}
+#s14 .j-desc{font-size:0.65rem;color:#6b7280;line-height:1.5;}
+#s14 .tools-row{display:flex;gap:8px;flex-wrap:wrap;}
+#s14 .tool-pill{background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:6px 12px;font-size:0.72rem;font-weight:700;color:#374151;box-shadow:0 1px 3px rgba(0,0,0,0.05);}
+
+/* ═══════════════════════════════════════════════
+   SLIDE 15 — LIVE RESULTS / STATS
+═══════════════════════════════════════════════ */
+#s15{background:#05050f;}
+#s15 .orb{position:absolute;border-radius:50%;filter:blur(80px);pointer-events:none;}
+#s15 .o1{width:500px;height:500px;background:#22c55e;top:-150px;left:-100px;opacity:0.2;}
+#s15 .o2{width:400px;height:400px;background:#4f46e5;bottom:-100px;right:-80px;opacity:0.2;}
+#s15 .inner{position:relative;z-index:2;display:flex;flex-direction:column;height:100%;}
+#s15 .header{padding:24px 60px;color:white;}
+#s15 .header h2{font-size:1.9rem;font-weight:800;}
+#s15 .header p{font-size:0.85rem;color:rgba(255,255,255,0.5);margin-top:4px;}
+#s15 .body{flex:1;padding:16px 48px;display:grid;grid-template-columns:repeat(3,1fr);gap:16px;align-items:center;}
+#s15 .result-card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:22px;text-align:center;}
+#s15 .r-icon{font-size:2rem;margin-bottom:10px;}
+#s15 .r-num{font-size:2.6rem;font-weight:900;background:linear-gradient(135deg,#fff,#a5b4fc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1;}
+#s15 .r-label{font-size:0.7rem;font-weight:700;color:rgba(255,255,255,0.45);text-transform:uppercase;letter-spacing:0.08em;margin-top:6px;}
+#s15 .r-desc{font-size:0.72rem;color:rgba(255,255,255,0.35);margin-top:6px;line-height:1.5;}
+
+/* ═══════════════════════════════════════════════
+   SLIDE 16 — WHAT'S NEXT / THANK YOU
+═══════════════════════════════════════════════ */
+#s16{background:#05050f;}
+#s16 .orb{position:absolute;border-radius:50%;filter:blur(100px);pointer-events:none;}
+#s16 .o1{width:600px;height:600px;background:#4f46e5;top:-200px;left:-150px;opacity:0.4;}
+#s16 .o2{width:500px;height:500px;background:#dc2626;bottom:-150px;right:-100px;opacity:0.25;}
+#s16 .o3{width:350px;height:350px;background:#22c55e;top:50%;left:50%;transform:translate(-50%,-50%);opacity:0.1;}
+#s16 .grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.03) 1px,transparent 1px);background-size:60px 60px;}
+#s16 .inner{position:relative;z-index:2;display:flex;height:100%;align-items:center;justify-content:center;flex-direction:column;gap:24px;padding:40px 80px;text-align:center;}
+#s16 h2{font-size:3.2rem;font-weight:900;background:linear-gradient(135deg,#fff 0%,#c7d2fe 40%,#a78bfa 75%,#f472b6 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:-0.03em;}
+#s16 .subtitle{font-size:1rem;color:rgba(255,255,255,0.5);max-width:500px;line-height:1.7;}
+#s16 .links{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;}
+#s16 .link-pill{padding:10px 22px;border-radius:30px;font-size:0.82rem;font-weight:700;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.7);background:rgba(255,255,255,0.05);backdrop-filter:blur(8px);}
+#s16 .link-pill.primary{background:linear-gradient(135deg,#dc2626,#991b1b);border-color:transparent;color:white;box-shadow:0 4px 16px rgba(220,38,38,0.4);}
+#s16 .next-pills{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;}
+#s16 .np{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:8px 16px;font-size:0.72rem;color:rgba(255,255,255,0.55);font-weight:600;}
+
+/* ═══════════════════════════════════════════════
+   PRINT STYLES
+═══════════════════════════════════════════════ */
+@media print{
+  body{background:#fff;padding:0;}
+  .controls{display:none!important;}
+  .slide{display:flex!important;margin:0;page-break-after:always;border-radius:0;box-shadow:none;width:100%!important;aspect-ratio:16/9;}
+  .slide-show{padding:0;}
+  .slide-num{display:none;}
+}
+</style>
+</head>
+<body>
+
+<!-- CONTROLS -->
+<div class="controls">
+  <button class="ctrl-btn ctrl-nav" onclick="prevSlide()">← Prev</button>
+  <span class="slide-counter" id="counter">1 / 16</span>
+  <button class="ctrl-btn ctrl-nav" onclick="nextSlide()">Next →</button>
+  <button class="ctrl-btn ctrl-pdf" onclick="window.print()">🖨 Save as PDF</button>
+</div>
+
+<div class="slide-show">
+
+<!-- ══════════════════════ SLIDE 1: TITLE ══════════════════════ -->
+<div class="slide active" id="s1">
+  <div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div>
+  <div class="grid"></div>
+  <div class="content">
+    <div class="left">
+      <div class="badge-row">
+        <span class="tag b1">✦ AI-Powered QA Platform</span>
+        <span class="tag b2">● Live at qualiaqa.vercel.app</span>
+      </div>
+      <div class="logo">Qualia</div>
+      <div class="tagline">The AI QA Intelligence Platform<br/>Built by a QA Engineer, for QA Teams, Globally.</div>
+      <div class="meta">
+        <strong>Mansi Deshman</strong> · QA Engineer · 2026<br/>
+        <span style="margin-top:6px;display:block;">Built with Vibe Coding · B.L.A.S.T. Framework · GROQ AI</span>
+      </div>
+    </div>
+    <div class="right">
+      <div class="stat-box"><div class="sn">5</div><div class="sl">AI Generators</div></div>
+      <div class="stat-box"><div class="sn">25+</div><div class="sl">Product Types</div></div>
+      <div class="stat-box"><div class="sn">5</div><div class="sl">Bug Trackers</div></div>
+      <div class="stat-box"><div class="sn">&lt;60s</div><div class="sl">Test Plan Time</div></div>
+    </div>
+  </div>
+  <div class="slide-num">01 / 16</div>
+</div>
+
+<!-- ══════════════════════ SLIDE 2: THE PROBLEM ══════════════════════ -->
+<div class="slide" id="s2">
+  <div class="slide-inner">
+    <div class="top-bar">
+      <h2>The Problem Every QA Team Faces</h2>
+      <p>Before Qualia — manual, slow, and expertise-dependent QA processes</p>
+    </div>
+    <div class="body">
+      <div class="prob-card">
+        <div class="prob-icon">⏱️</div>
+        <div class="prob-title">Writing Test Plans Takes Forever</div>
+        <div class="prob-desc">A QA engineer spends 3–5 hours writing a comprehensive test plan for a single feature. Multiply that by every sprint and every team.</div>
+        <div class="prob-stat">⚡ Avg: 3–5 hours per test plan</div>
+      </div>
+      <div class="prob-card">
+        <div class="prob-icon">🐛</div>
+        <div class="prob-title">Bug Tickets Lack Quality</div>
+        <div class="prob-desc">Poorly written bug reports with missing reproduction steps, wrong severity, and no root cause analysis slow down dev teams and delay fixes.</div>
+        <div class="prob-stat">⚡ 40% of bugs reopened due to poor tickets</div>
+      </div>
+      <div class="prob-card">
+        <div class="prob-icon">🔄</div>
+        <div class="prob-title">Repetitive, Low-Value Work</div>
+        <div class="prob-desc">Senior QA engineers spend most of their time on formatting documents, writing boilerplate cases, and copying data between tools — not thinking.</div>
+        <div class="prob-stat">⚡ 60% of QA time = documentation</div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-num">02 / 16</div>
+</div>
+
+<!-- ══════════════════════ SLIDE 3: VIBE CODING ══════════════════════ -->
+<div class="slide" id="s3">
+  <div class="slide-inner">
+    <div class="header">
+      <h2>What is Vibe Coding?</h2>
+      <p>How I built Qualia — a full AI platform — using natural language as my programming interface</p>
+    </div>
+    <div class="body">
+      <div class="flow">
+        <div class="flow-step">
+          <span class="step-num">01</span>
+          <div class="step-text"><h4>Describe what you want in plain English</h4><p>"I want a test plan generator that takes a PRD as input and outputs IEEE 829 test cases with positive, negative and edge cases."</p></div>
+        </div>
+        <div class="flow-step">
+          <span class="step-num">02</span>
+          <div class="step-text"><h4>AI writes the code (Claude Code)</h4><p>The AI pair programmer (Claude Code) writes React components, service logic, prompt engineering, and API integrations — all from your description.</p></div>
+        </div>
+        <div class="flow-step">
+          <span class="step-num">03</span>
+          <div class="step-text"><h4>You guide, review, and refine</h4><p>"Make the Defect Radar work for 25 product types. Add Azure DevOps integration. Auto-detect the user's browser and OS."</p></div>
+        </div>
+        <div class="flow-step">
+          <span class="step-num">04</span>
+          <div class="step-text"><h4>Deploy instantly to production</h4><p>Vercel CLI deploys the app globally in under 2 minutes. No DevOps knowledge needed. Live at qualiaqa.vercel.app.</p></div>
+        </div>
+      </div>
+      <div class="vs-box">
+        <div class="vs-card vs-old">
+          <div class="vs-label">❌ Traditional Way</div>
+          <div class="vs-item">Learn React, Node, APIs from scratch</div>
+          <div class="vs-item">Write 2,000+ lines of boilerplate code</div>
+          <div class="vs-item">Configure CI/CD pipelines manually</div>
+          <div class="vs-item">Weeks or months of development</div>
+          <div class="vs-item">Need a full dev team</div>
+        </div>
+        <div class="vs-card vs-new">
+          <div class="vs-label">✅ Vibe Coding Way</div>
+          <div class="vs-item">Describe the feature → AI writes the code</div>
+          <div class="vs-item">Iterate with feedback in natural language</div>
+          <div class="vs-item">AI handles deployment config</div>
+          <div class="vs-item">Production-ready in days, not months</div>
+          <div class="vs-item">One person with domain knowledge = a team</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-num">03 / 16</div>
+</div>
+
+<!-- ══════════════════════ SLIDE 4: AI AGENT ══════════════════════ -->
+<div class="slide" id="s4">
+  <div class="slide-inner">
+    <div class="header">
+      <h2>What is an AI Agent?</h2>
+      <p>And how Qualia uses AI agents to automate QA intelligence tasks</p>
+    </div>
+    <div class="body">
+      <div class="agent-flow">
+        <div class="af-box"><div class="af-icon">👤</div><div class="af-label">User Input</div><div class="af-sub">PRD · Bug Screenshot<br/>Feature Description</div></div>
+        <div class="af-arrow">→</div>
+        <div class="af-box"><div class="af-icon">🔧</div><div class="af-label">Prompt Engineering</div><div class="af-sub">B.L.A.S.T. Framework<br/>Structured Instructions</div></div>
+        <div class="af-arrow">→</div>
+        <div class="af-box af-brain"><div class="af-icon">🧠</div><div class="af-label">AI Brain (LLM)</div><div class="af-sub">GROQ · Llama 3.3 70B<br/>Vision AI</div></div>
+        <div class="af-arrow">→</div>
+        <div class="af-box"><div class="af-icon">📊</div><div class="af-label">Structured Output</div><div class="af-sub">JSON Response<br/>Parsed + Validated</div></div>
+        <div class="af-arrow">→</div>
+        <div class="af-box"><div class="af-icon">🎯</div><div class="af-label">Action Taken</div><div class="af-sub">Jira · Linear · GitHub<br/>Azure DevOps</div></div>
+      </div>
+      <div class="qualia-agent">
+        <div class="qa-card"><div class="qa-icon">📋</div><div class="qa-name">Test Plan Agent</div><div class="qa-detail">PRD → IEEE 829 Plan</div></div>
+        <div class="qa-card"><div class="qa-icon">🔍</div><div class="qa-name">Defect Radar Agent</div><div class="qa-detail">Screenshot → Bug Ticket</div></div>
+        <div class="qa-card"><div class="qa-icon">⚡</div><div class="qa-name">Test Case Agent</div><div class="qa-detail">Feature → 28 Cases</div></div>
+        <div class="qa-card"><div class="qa-icon">🏗️</div><div class="qa-name">Strategy Agent</div><div class="qa-detail">Product → Strategy Doc</div></div>
+        <div class="qa-card"><div class="qa-icon">📊</div><div class="qa-name">Metrics Agent</div><div class="qa-detail">Data → QA Report</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-num">04 / 16</div>
+</div>
+
+<!-- ══════════════════════ SLIDE 5: BLAST OVERVIEW ══════════════════════ -->
+<div class="slide" id="s5">
+  <div class="orb o1"></div><div class="orb o2"></div>
+  <div class="inner">
+    <div class="header">
+      <h2>The B.L.A.S.T. Framework</h2>
+      <div class="sub">The 5-phase AI prompt engineering framework that powers every Qualia generator</div>
+    </div>
+    <div class="blast-grid">
+      <div class="blast-col">
+        <div class="blast-letter lb">B</div>
+        <div class="blast-word">Blueprint</div>
+        <div class="blast-desc">Define the mission, context, and what the AI must understand before it generates anything.</div>
+        <div class="blast-items">
+          <div class="bi">Who is the user?</div>
+          <div class="bi">What product type?</div>
+          <div class="bi">What are the goals?</div>
+          <div class="bi">What framework applies?</div>
+        </div>
+      </div>
+      <div class="blast-col">
+        <div class="blast-letter lr">L</div>
+        <div class="blast-word">Link</div>
+        <div class="blast-desc">Connect the AI to real-world context: APIs, environments, bug trackers, and data sources.</div>
+        <div class="blast-items">
+          <div class="bi">GROQ AI API</div>
+          <div class="bi">Bug Tracker APIs</div>
+          <div class="bi">Vision AI for screenshots</div>
+          <div class="bi">Browser/OS detection</div>
+        </div>
+      </div>
+      <div class="blast-col">
+        <div class="blast-letter la">A</div>
+        <div class="blast-word">Architect</div>
+        <div class="blast-desc">Structure the AI's output format — define the exact JSON schema so every response is parseable and actionable.</div>
+        <div class="blast-items">
+          <div class="bi">RICE-POT ticket schema</div>
+          <div class="bi">38-layer root cause taxonomy</div>
+          <div class="bi">Severity/Priority logic</div>
+          <div class="bi">Acceptance criteria format</div>
+        </div>
+      </div>
+      <div class="blast-col">
+        <div class="blast-letter ls">S</div>
+        <div class="blast-word">Stylize</div>
+        <div class="blast-desc">Make AI output human-friendly: format, beautify, and display results in a way that QA engineers can use immediately.</div>
+        <div class="blast-items">
+          <div class="bi">Severity colour coding</div>
+          <div class="bi">Ticket card UI</div>
+          <div class="bi">One-click export</div>
+          <div class="bi">Bug tracker push button</div>
+        </div>
+      </div>
+      <div class="blast-col">
+        <div class="blast-letter lt">T</div>
+        <div class="blast-word">Trigger</div>
+        <div class="blast-desc">The user action that fires the entire AI pipeline — one click from input to structured, actionable QA output.</div>
+        <div class="blast-items">
+          <div class="bi">Generate Test Plan button</div>
+          <div class="bi">Analyse Screenshot button</div>
+          <div class="bi">Push to Jira / Linear</div>
+          <div class="bi">Export to Excel / PDF</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-num">05 / 16</div>
+</div>
+
+<!-- ══════════════════════ SLIDE 6: B — BLUEPRINT ══════════════════════ -->
+<div class="slide detail-slide" id="s6">
+  <div class="detail-left" style="color:white;">
+    <div class="dl-icon-big">🗺️</div>
+    <div class="detail-title" style="color:#a5b4fc;font-size:1.4rem;font-weight:900;text-align:center;">Blueprint</div>
+    <div style="font-size:0.72rem;color:rgba(255,255,255,0.45);text-align:center;margin-top:4px;">Phase 1 of 5</div>
+    <div class="dl-tag" style="background:#4f46e5;margin-top:10px;">B.LAST</div>
+  </div>
+  <div class="detail-right" style="position:relative;">
+    <div class="big-letter" style="color:#6366f1;">B</div>
+    <div class="detail-title">Define the Mission</div>
+    <div class="detail-word">What does the AI need to know before generating?</div>
+    <div class="detail-body">
+      <div class="dc">
+        <div class="dc-title">🎯 Role Definition</div>
+        <div class="dc-item">AI is told: "You are a senior QA engineer"</div>
+        <div class="dc-item">It understands QA standards (IEEE 829, ISTQB)</div>
+        <div class="dc-item">It knows the difference between severity/priority</div>
+      </div>
+      <div class="dc">
+        <div class="dc-title">🏷️ Context Injection</div>
+        <div class="dc-item">Product type: Web / Mobile / IoT / AI/ML / etc.</div>
+        <div class="dc-item">Application name and description</div>
+        <div class="dc-item">Target environment: Staging / Production</div>
+      </div>
+      <div class="dc">
+        <div class="dc-title">📐 Framework Rules</div>
+        <div class="dc-item">Must follow RICE-POT for bug tickets</div>
+        <div class="dc-item">Test cases need: ID, type, steps, expected result</div>
+        <div class="dc-item">Security + performance cases always included</div>
+      </div>
+      <div class="dc">
+        <div class="dc-title">🌐 Global Awareness</div>
+        <div class="dc-item">Auto-detects locale (en-US, ar-SA, ja-JP etc.)</div>
+        <div class="dc-item">Applies i18n rules for RTL, encoding, date formats</div>
+        <div class="dc-item">25+ product-specific rules per category</div>
+      </div>
+    </div>
+    <div class="qualia-example">System: "You are a principal QA engineer specialising in {productType}.<br/>Output must be valid JSON matching the RICE-POT schema.<br/>Always include HIPAA/GDPR compliance checks for healthcare products."</div>
+  </div>
+  <div class="slide-num">06 / 16</div>
+</div>
+
+<!-- ══════════════════════ SLIDE 7: L — LINK ══════════════════════ -->
+<div class="slide detail-slide" id="s7">
+  <div class="detail-left" style="color:white;">
+    <div class="dl-icon-big">🔗</div>
+    <div class="detail-title" style="color:#fca5a5;font-size:1.4rem;font-weight:900;text-align:center;">Link</div>
+    <div style="font-size:0.72rem;color:rgba(255,255,255,0.45);text-align:center;margin-top:4px;">Phase 2 of 5</div>
+    <div class="dl-tag" style="background:#dc2626;margin-top:10px;">BL.AST</div>
+  </div>
+  <div class="detail-right" style="position:relative;">
+    <div class="big-letter" style="color:#ef4444;">L</div>
+    <div class="detail-title">Connect to Real-World Data</div>
+    <div class="detail-word">APIs, services, and live context that ground the AI</div>
+    <div class="detail-body">
+      <div class="dc">
+        <div class="dc-title">🧠 AI Brain — GROQ API</div>
+        <div class="dc-item">Llama 3.3 70B — text generation (test plans, cases)</div>
+        <div class="dc-item">Llama 4 Scout Vision — analyses bug screenshots</div>
+        <div class="dc-item">Ultra-fast inference: &lt;3s response time</div>
+      </div>
+      <div class="dc">
+        <div class="dc-title">🎯 Bug Tracker Integrations</div>
+        <div class="dc-item">Jira Cloud — REST API v3</div>
+        <div class="dc-item">Linear — GraphQL mutation</div>
+        <div class="dc-item">GitHub Issues, YouTrack, Azure DevOps</div>
+      </div>
+      <div class="dc">
+        <div class="dc-title">🖥️ Browser Context (Auto-detect)</div>
+        <div class="dc-item">navigator.userAgent → Browser + OS</div>
+        <div class="dc-item">window.screen → Resolution + viewport</div>
+        <div class="dc-item">navigator.language → Locale (e.g., en-US)</div>
+      </div>
+      <div class="dc">
+        <div class="dc-title">📁 Evidence Upload</div>
+        <div class="dc-item">PNG/JPG screenshots → Vision AI analysis</div>
+        <div class="dc-item">.log files → Error pattern extraction</div>
+        <div class="dc-item">HAR traces → Network request analysis</div>
+      </div>
+    </div>
+    <div class="qualia-example">// Auto-detected context sent to AI:<br/>{ browser: "Chrome 124", os: "Windows 11",<br/>  screen: "1920x1080", viewport: "1440x900", locale: "en-US" }</div>
+  </div>
+  <div class="slide-num">07 / 16</div>
+</div>
+
+<!-- ══════════════════════ SLIDE 8: A — ARCHITECT ══════════════════════ -->
+<div class="slide detail-slide" id="s8">
+  <div class="detail-left" style="color:white;">
+    <div class="dl-icon-big">🏗️</div>
+    <div class="detail-title" style="color:#fcd34d;font-size:1.4rem;font-weight:900;text-align:center;">Architect</div>
+    <div style="font-size:0.72rem;color:rgba(255,255,255,0.45);text-align:center;margin-top:4px;">Phase 3 of 5</div>
+    <div class="dl-tag" style="background:#d97706;margin-top:10px;">BLA.ST</div>
+  </div>
+  <div class="detail-right" style="position:relative;">
+    <div class="big-letter" style="color:#f59e0b;">A</div>
+    <div class="detail-title">Structure the AI Output</div>
+    <div class="detail-word">Define exact schemas so every response is parseable</div>
+    <div class="detail-body">
+      <div class="dc">
+        <div class="dc-title">📋 Test Plan Schema</div>
+        <div class="dc-item">objective, scope, outOfScope, testEnvironment</div>
+        <div class="dc-item">testCases: [ {id, type, title, steps, expected} ]</div>
+        <div class="dc-item">Types: positive / negative / edge / security / performance</div>
+      </div>
+      <div class="dc">
+        <div class="dc-title">🐛 RICE-POT Bug Ticket Schema</div>
+        <div class="dc-item">risks, items, criteria, environment, people</div>
+        <div class="dc-item">objectives: { actualBehaviour, expectedBehaviour }</div>
+        <div class="dc-item">rootCause: { probableLayer, summary }</div>
+      </div>
+      <div class="dc">
+        <div class="dc-title">🔬 38-Layer Root Cause Taxonomy</div>
+        <div class="dc-item">FRONTEND:UI-STATE · API:CONTRACT · AUTH:SESSION</div>
+        <div class="dc-item">MOBILE:LIFECYCLE · IOT:CONNECTIVITY · AI:MODEL-INFERENCE</div>
+        <div class="dc-item">BLOCKCHAIN:SMART-CONTRACT · GAMING:PHYSICS · I18N:RTL</div>
+      </div>
+      <div class="dc">
+        <div class="dc-title">⚙️ Output Validation</div>
+        <div class="dc-item">JSON.parse() validates AI response on every call</div>
+        <div class="dc-item">Missing fields auto-filled with sensible defaults</div>
+        <div class="dc-item">Severity always one of: Critical / High / Medium / Low</div>
+      </div>
+    </div>
+    <div class="qualia-example">{ "title": "...", "severity": "Critical", "priority": "P0",<br/>  "rootCause": { "probableLayer": "FRONTEND:UI-STATE",<br/>  "summary": "Race condition in async payment callback" } }</div>
+  </div>
+  <div class="slide-num">08 / 16</div>
+</div>
+
+<!-- ══════════════════════ SLIDE 9: S — STYLIZE ══════════════════════ -->
+<div class="slide detail-slide" id="s9">
+  <div class="detail-left" style="color:white;">
+    <div class="dl-icon-big">🎨</div>
+    <div class="detail-title" style="color:#86efac;font-size:1.4rem;font-weight:900;text-align:center;">Stylize</div>
+    <div style="font-size:0.72rem;color:rgba(255,255,255,0.45);text-align:center;margin-top:4px;">Phase 4 of 5</div>
+    <div class="dl-tag" style="background:#16a34a;margin-top:10px;">BLA S.T</div>
+  </div>
+  <div class="detail-right" style="position:relative;">
+    <div class="big-letter" style="color:#22c55e;">S</div>
+    <div class="detail-title">Make Output Human-Friendly</div>
+    <div class="detail-word">Transform raw AI JSON into usable, beautiful QA artifacts</div>
+    <div class="detail-body">
+      <div class="dc">
+        <div class="dc-title">🎨 Visual Design Language</div>
+        <div class="dc-item">Critical bugs → red left border + red badge</div>
+        <div class="dc-item">Test case types → colour-coded pills</div>
+        <div class="dc-item">Root cause layers → monospace code chips</div>
+      </div>
+      <div class="dc">
+        <div class="dc-title">📤 One-Click Export</div>
+        <div class="dc-item">JSON Export — raw ticket for any system</div>
+        <div class="dc-item">Copy to Clipboard — paste anywhere</div>
+        <div class="dc-item">Push to Bug Tracker — creates issue directly</div>
+      </div>
+      <div class="dc">
+        <div class="dc-title">📋 Formatted Descriptions</div>
+        <div class="dc-item">Jira: Atlassian Document Format (ADF)</div>
+        <div class="dc-item">Linear/GitHub: Markdown with tables + checklists</div>
+        <div class="dc-item">Azure DevOps: JSON Patch document format</div>
+      </div>
+      <div class="dc">
+        <div class="dc-title">📊 Metrics Display</div>
+        <div class="dc-item">Progress bars for test coverage by module</div>
+        <div class="dc-item">KPI cards: pass rate, defect density, total cases</div>
+        <div class="dc-item">Sprint summary ready to share with managers</div>
+      </div>
+    </div>
+    <div class="qualia-example">// AI JSON → formatted Jira ADF description<br/>// AI JSON → GitHub Markdown with tables and checkboxes<br/>// AI JSON → Azure DevOps JSON Patch array</div>
+  </div>
+  <div class="slide-num">09 / 16</div>
+</div>
+
+<!-- ══════════════════════ SLIDE 10: T — TRIGGER ══════════════════════ -->
+<div class="slide detail-slide" id="s10">
+  <div class="detail-left" style="color:white;">
+    <div class="dl-icon-big">⚡</div>
+    <div class="detail-title" style="color:#c4b5fd;font-size:1.4rem;font-weight:900;text-align:center;">Trigger</div>
+    <div style="font-size:0.72rem;color:rgba(255,255,255,0.45);text-align:center;margin-top:4px;">Phase 5 of 5</div>
+    <div class="dl-tag" style="background:#7c3aed;margin-top:10px;">BLAS T.</div>
+  </div>
+  <div class="detail-right" style="position:relative;">
+    <div class="big-letter" style="color:#a78bfa;">T</div>
+    <div class="detail-title">Fire the AI Pipeline</div>
+    <div class="detail-word">One user action → full QA workflow automated</div>
+    <div class="detail-body">
+      <div class="dc">
+        <div class="dc-title">🖱️ User Triggers in Qualia</div>
+        <div class="dc-item">"⚡ Generate Test Plan" → full IEEE 829 plan</div>
+        <div class="dc-item">"🔍 Analyse" → bug ticket from screenshot</div>
+        <div class="dc-item">"🏗️ Build Test Strategy" → 10-section strategy doc</div>
+      </div>
+      <div class="dc">
+        <div class="dc-title">🔄 What Happens at Trigger</div>
+        <div class="dc-item">Form data collected → context assembled</div>
+        <div class="dc-item">Prompt built: Blueprint + Link + Architect rules</div>
+        <div class="dc-item">GROQ API called → JSON response returned</div>
+      </div>
+      <div class="dc">
+        <div class="dc-title">📤 Post-Generation Actions</div>
+        <div class="dc-item">"Push to Jira" → creates Jira issue via REST API</div>
+        <div class="dc-item">"Push to Linear" → GraphQL mutation creates issue</div>
+        <div class="dc-item">"Export JSON" → downloads structured ticket file</div>
+      </div>
+      <div class="dc">
+        <div class="dc-title">⚡ Speed</div>
+        <div class="dc-item">Test plan: &lt;60 seconds for 20+ test cases</div>
+        <div class="dc-item">Bug ticket: &lt;8 seconds from screenshot upload</div>
+        <div class="dc-item">Bug tracker push: &lt;2 seconds to create issue</div>
+      </div>
+    </div>
+    <div class="qualia-example">User clicks "Generate" → callGroqAPI(prompt, schema)<br/>  → parseResponse(json) → renderTickets(ui)<br/>  → user clicks "Push to Jira" → createJiraIssue(ticket, config)</div>
+  </div>
+  <div class="slide-num">10 / 16</div>
+</div>
+
+<!-- ══════════════════════ SLIDE 11: RICE-POT ══════════════════════ -->
+<div class="slide" id="s11">
+  <div class="slide-inner">
+    <div class="header">
+      <h2>The RICE-POT Framework — Defect Radar</h2>
+      <p>7 dimensions that make every AI-generated bug ticket complete, consistent, and immediately actionable</p>
+    </div>
+    <div class="body">
+      <div class="rp-col">
+        <div class="rp-letter rp-r">R</div>
+        <div class="rp-word" style="color:#dc2626;">Risks</div>
+        <div class="rp-card"><div class="rp-q">What could go wrong?</div><div class="rp-a">Business impact, data loss risk, security exposure, regulatory impact</div></div>
+      </div>
+      <div class="rp-col">
+        <div class="rp-letter rp-i">I</div>
+        <div class="rp-word" style="color:#d97706;">Items</div>
+        <div class="rp-card"><div class="rp-q">What is affected?</div><div class="rp-a">Feature area, component, module, user journey affected by the defect</div></div>
+      </div>
+      <div class="rp-col">
+        <div class="rp-letter rp-c">C</div>
+        <div class="rp-word" style="color:#ca8a04;">Criteria</div>
+        <div class="rp-card"><div class="rp-q">How to verify the fix?</div><div class="rp-a">Steps to reproduce, fix acceptance criteria, test verification steps</div></div>
+      </div>
+      <div class="rp-col">
+        <div class="rp-letter rp-e">E</div>
+        <div class="rp-word" style="color:#16a34a;">Environment</div>
+        <div class="rp-card"><div class="rp-q">Where does it happen?</div><div class="rp-a">Browser, OS, screen resolution, locale, test environment, device type</div></div>
+      </div>
+      <div class="rp-col">
+        <div class="rp-letter rp-p">P</div>
+        <div class="rp-word" style="color:#0284c7;">People</div>
+        <div class="rp-card"><div class="rp-q">Who is impacted?</div><div class="rp-a">Affected user roles, personas, customer segments, internal teams</div></div>
+      </div>
+      <div class="rp-col">
+        <div class="rp-letter rp-o">O</div>
+        <div class="rp-word" style="color:#7c3aed;">Objectives</div>
+        <div class="rp-card"><div class="rp-q">What should happen?</div><div class="rp-a">Actual vs expected behaviour delta — the core bug statement</div></div>
+      </div>
+      <div class="rp-col">
+        <div class="rp-letter rp-t">T</div>
+        <div class="rp-word" style="color:#db2777;">Tools</div>
+        <div class="rp-card"><div class="rp-q">How to fix and track?</div><div class="rp-a">Fix effort estimate, root cause layer, recommended debugging tools</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-num">11 / 16</div>
+</div>
+
+<!-- ══════════════════════ SLIDE 12: AI PIPELINE ══════════════════════ -->
+<div class="slide" id="s12">
+  <div class="slide-inner">
+    <div class="header">
+      <h2>How the AI Pipeline Works — End to End</h2>
+      <p>From user input to structured QA output in under 60 seconds</p>
+    </div>
+    <div class="body">
+      <div class="pipeline">
+        <div class="pp">
+          <div class="pp-icon">📝</div>
+          <div class="pp-box">User Input<br/>(PRD / Screenshot)</div>
+          <div class="pp-sub">Form fields<br/>File upload</div>
+        </div>
+        <div class="pp-arrow">→</div>
+        <div class="pp">
+          <div class="pp-icon">⚙️</div>
+          <div class="pp-box">Context<br/>Assembly</div>
+          <div class="pp-sub">App type, env<br/>locale, evidence</div>
+        </div>
+        <div class="pp-arrow">→</div>
+        <div class="pp">
+          <div class="pp-icon">🔨</div>
+          <div class="pp-box">Prompt<br/>Engineering</div>
+          <div class="pp-sub">BLAST rules<br/>JSON schema</div>
+        </div>
+        <div class="pp-arrow">→</div>
+        <div class="pp highlight">
+          <div class="pp-icon">🧠</div>
+          <div class="pp-box">GROQ AI<br/>Llama 3.3 70B</div>
+          <div class="pp-sub">~3s inference<br/>Structured output</div>
+        </div>
+        <div class="pp-arrow">→</div>
+        <div class="pp">
+          <div class="pp-icon">✅</div>
+          <div class="pp-box">Parse &amp;<br/>Validate JSON</div>
+          <div class="pp-sub">Schema check<br/>Fill defaults</div>
+        </div>
+        <div class="pp-arrow">→</div>
+        <div class="pp">
+          <div class="pp-icon">🎨</div>
+          <div class="pp-box">Render<br/>Styled UI</div>
+          <div class="pp-sub">Cards, badges<br/>Export buttons</div>
+        </div>
+        <div class="pp-arrow">→</div>
+        <div class="pp">
+          <div class="pp-icon">🎯</div>
+          <div class="pp-box">Push to<br/>Bug Tracker</div>
+          <div class="pp-sub">Jira / Linear<br/>GitHub / Azure</div>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:0.72rem;font-weight:700;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px;">Tech Stack</div>
+        <div class="tech-row">
+          <div class="tech-pill"><span>⚛️</span>React 18</div>
+          <div class="tech-pill"><span>🤖</span>GROQ AI API</div>
+          <div class="tech-pill"><span>🦙</span>Llama 3.3 70B</div>
+          <div class="tech-pill"><span>👁️</span>Llama 4 Scout Vision</div>
+          <div class="tech-pill"><span>▲</span>Vercel (Serverless)</div>
+          <div class="tech-pill"><span>🎯</span>Jira REST v3</div>
+          <div class="tech-pill"><span>📐</span>Linear GraphQL</div>
+          <div class="tech-pill"><span>🔵</span>Azure DevOps API</div>
+          <div class="tech-pill"><span>🐙</span>GitHub Issues API</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-num">12 / 16</div>
+</div>
+
+<!-- ══════════════════════ SLIDE 13: TRADITIONAL VS AI ══════════════════════ -->
+<div class="slide" id="s13">
+  <div class="slide-inner">
+    <div class="header">
+      <h2>AI Agents in Testing — The Shift</h2>
+      <p>How AI transforms the time and expertise needed for every QA activity</p>
+    </div>
+    <div class="body">
+      <div class="old-col">
+        <div class="col-title">❌ Without AI</div>
+        <div class="comp-row"><div class="comp-task">Test Plan</div><div class="comp-bar-bg"><div class="comp-bar bar-old" style="width:90%;">3–5 hours</div></div></div>
+        <div class="comp-row"><div class="comp-task">Test Cases</div><div class="comp-bar-bg"><div class="comp-bar bar-old" style="width:80%;">2–3 hours</div></div></div>
+        <div class="comp-row"><div class="comp-task">Bug Ticket</div><div class="comp-bar-bg"><div class="comp-bar bar-old" style="width:50%;">30–45 min</div></div></div>
+        <div class="comp-row"><div class="comp-task">Test Strategy</div><div class="comp-bar-bg"><div class="comp-bar bar-old" style="width:95%;">1–2 days</div></div></div>
+        <div class="comp-row"><div class="comp-task">QA Report</div><div class="comp-bar-bg"><div class="comp-bar bar-old" style="width:70%;">1–2 hours</div></div></div>
+        <div style="background:#fef2f2;border-radius:8px;padding:10px 14px;margin-top:12px;font-size:0.72rem;color:#dc2626;font-weight:600;line-height:1.6;">
+          A typical sprint = <strong>20+ hours</strong> of documentation work per QA engineer
+        </div>
+      </div>
+      <div class="new-col">
+        <div class="col-title">✅ With Qualia AI Agents</div>
+        <div class="comp-row"><div class="comp-task">Test Plan</div><div class="comp-bar-bg"><div class="comp-bar bar-new" style="width:10%;">&lt;60s</div></div></div>
+        <div class="comp-row"><div class="comp-task">Test Cases</div><div class="comp-bar-bg"><div class="comp-bar bar-new" style="width:8%;">&lt;45s</div></div></div>
+        <div class="comp-row"><div class="comp-task">Bug Ticket</div><div class="comp-bar-bg"><div class="comp-bar bar-new" style="width:6%;">&lt;8s</div></div></div>
+        <div class="comp-row"><div class="comp-task">Test Strategy</div><div class="comp-bar-bg"><div class="comp-bar bar-new" style="width:9%;">&lt;90s</div></div></div>
+        <div class="comp-row"><div class="comp-task">QA Report</div><div class="comp-bar-bg"><div class="comp-bar bar-new" style="width:7%;">&lt;30s</div></div></div>
+        <div style="background:#f0fdf4;border-radius:8px;padding:10px 14px;margin-top:12px;font-size:0.72rem;color:#15803d;font-weight:600;line-height:1.6;">
+          Same sprint = <strong>under 5 minutes</strong> of documentation. QA focuses on <strong>real testing</strong>.
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-num">13 / 16</div>
+</div>
+
+<!-- ══════════════════════ SLIDE 14: HOW I BUILT IT ══════════════════════ -->
+<div class="slide" id="s14">
+  <div class="slide-inner">
+    <div class="header">
+      <h2>How I Built Qualia — The Journey</h2>
+      <p>From idea to production-deployed AI platform using Vibe Coding and Claude Code</p>
+    </div>
+    <div class="body">
+      <div class="journey">
+        <div class="j-card">
+          <div class="j-num">Step 1</div>
+          <div class="j-icon">💡</div>
+          <div class="j-title">Identify the Pain</div>
+          <div class="j-desc">From my own QA experience — test plans waste too much time. Let AI do the boilerplate.</div>
+        </div>
+        <div class="j-card">
+          <div class="j-num">Step 2</div>
+          <div class="j-icon">🗣️</div>
+          <div class="j-title">Describe to Claude Code</div>
+          <div class="j-desc">Used natural language to describe each feature. Claude Code wrote all React components and service logic.</div>
+        </div>
+        <div class="j-card">
+          <div class="j-num">Step 3</div>
+          <div class="j-icon">🧪</div>
+          <div class="j-title">Iterate and Enhance</div>
+          <div class="j-desc">Added Defect Radar based on SmartBug-AI concept. Enhanced to 25+ product types and 5 bug trackers.</div>
+        </div>
+        <div class="j-card">
+          <div class="j-num">Step 4</div>
+          <div class="j-icon">▲</div>
+          <div class="j-title">Deploy to Vercel</div>
+          <div class="j-desc">Vercel CLI deployment. Serverless functions for API calls. Live globally in under 2 minutes.</div>
+        </div>
+        <div class="j-card">
+          <div class="j-num">Step 5</div>
+          <div class="j-icon">🚀</div>
+          <div class="j-title">Production Live</div>
+          <div class="j-desc">qualiaqa.vercel.app — free to use, no login required. Open source on GitHub.</div>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:0.72rem;font-weight:700;color:#4b5563;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px;">Tools Used</div>
+        <div class="tools-row">
+          <div class="tool-pill">🤖 Claude Code (Vibe Coding)</div>
+          <div class="tool-pill">⚛️ React 18 + CRA</div>
+          <div class="tool-pill">🧠 GROQ AI API</div>
+          <div class="tool-pill">▲ Vercel</div>
+          <div class="tool-pill">🐙 GitHub</div>
+          <div class="tool-pill">🦙 Llama 3.3 70B</div>
+          <div class="tool-pill">👁️ Llama 4 Scout Vision</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-num">14 / 16</div>
+</div>
+
+<!-- ══════════════════════ SLIDE 15: RESULTS ══════════════════════ -->
+<div class="slide" id="s15">
+  <div class="orb o1"></div><div class="orb o2"></div>
+  <div class="inner">
+    <div class="header">
+      <h2>What Qualia Delivers — Results</h2>
+      <p>Real numbers from a production AI QA platform</p>
+    </div>
+    <div class="body">
+      <div class="result-card">
+        <div class="r-icon">⚡</div>
+        <div class="r-num">&lt;60s</div>
+        <div class="r-label">Test Plan Generation</div>
+        <div class="r-desc">From PRD paste to full IEEE 829 test plan with 20+ cases in under 60 seconds</div>
+      </div>
+      <div class="result-card">
+        <div class="r-icon">🐛</div>
+        <div class="r-num">&lt;8s</div>
+        <div class="r-label">Bug Detection Time</div>
+        <div class="r-desc">Upload screenshot → AI detects bugs, classifies severity, writes RICE-POT ticket in 8 seconds</div>
+      </div>
+      <div class="result-card">
+        <div class="r-icon">🌍</div>
+        <div class="r-num">25+</div>
+        <div class="r-label">Product Types Supported</div>
+        <div class="r-desc">Web, Mobile, API, IoT, AI/ML, Blockchain, Healthcare, FinTech, Gaming and more</div>
+      </div>
+      <div class="result-card">
+        <div class="r-icon">🎯</div>
+        <div class="r-num">5</div>
+        <div class="r-label">Bug Trackers Integrated</div>
+        <div class="r-desc">Push to Jira, Linear, GitHub, YouTrack, Azure DevOps — one click, no copy-paste</div>
+      </div>
+      <div class="result-card">
+        <div class="r-icon">📉</div>
+        <div class="r-num">90%</div>
+        <div class="r-label">Docs Time Saved</div>
+        <div class="r-desc">QA documentation that took days now takes minutes. Team focuses on actual testing</div>
+      </div>
+      <div class="result-card">
+        <div class="r-icon">🆓</div>
+        <div class="r-num">Free</div>
+        <div class="r-label">No Login Required</div>
+        <div class="r-desc">Fully browser-based, globally accessible, open source on GitHub</div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-num">15 / 16</div>
+</div>
+
+<!-- ══════════════════════ SLIDE 16: THANK YOU ══════════════════════ -->
+<div class="slide" id="s16">
+  <div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div>
+  <div class="grid"></div>
+  <div class="inner">
+    <h2>Qualia</h2>
+    <div class="subtitle">AI QA Intelligence Platform — making every QA engineer<br/>10× more productive, one test plan at a time.</div>
+    <div class="next-pills">
+      <div class="np">📋 Test Plan Generator</div>
+      <div class="np">🔍 Defect Radar</div>
+      <div class="np">⚡ Test Case Generator</div>
+      <div class="np">🏗️ Strategy Builder</div>
+      <div class="np">📊 Metrics Exporter</div>
+    </div>
+    <div class="links">
+      <div class="link-pill primary">🚀 qualiaqa.vercel.app</div>
+      <div class="link-pill">🐙 github.com/Mansideshman/Qualia</div>
+      <div class="link-pill">👤 Mansi Deshman — QA Engineer</div>
+    </div>
+    <div style="font-size:0.75rem;color:rgba(255,255,255,0.25);margin-top:8px;">Built with Vibe Coding · B.L.A.S.T. Framework · GROQ AI · Claude Code · Vercel</div>
+  </div>
+  <div class="slide-num">16 / 16</div>
+</div>
+
+</div><!-- /slide-show -->
+
+<script>
+let cur = 0;
+const slides = document.querySelectorAll('.slide');
+const counter = document.getElementById('counter');
+
+function show(n){
+  slides[cur].classList.remove('active');
+  cur = (n + slides.length) % slides.length;
+  slides[cur].classList.add('active');
+  counter.textContent = (cur+1) + ' / ' + slides.length;
+}
+function nextSlide(){ show(cur+1); }
+function prevSlide(){ show(cur-1); }
+
+document.addEventListener('keydown', e => {
+  if(e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') nextSlide();
+  if(e.key === 'ArrowLeft' || e.key === 'ArrowUp') prevSlide();
+});
+</script>
+</body>
+</html>

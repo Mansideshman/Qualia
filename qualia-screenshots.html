@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<title>Qualia — Feature Screenshots</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#111827;font-family:'Inter',sans-serif;padding:40px 24px;display:flex;flex-direction:column;align-items:center;gap:48px;}
+h1{color:#f9fafb;font-size:1.6rem;font-weight:800;margin-bottom:8px;text-align:center;}
+.subtitle{color:#6b7280;font-size:0.9rem;text-align:center;margin-bottom:8px;}
+.section{display:flex;flex-direction:column;align-items:center;gap:14px;width:100%;}
+.section-label{color:#9ca3af;font-size:0.8rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;}
+.dl-btn{padding:10px 24px;background:linear-gradient(135deg,#dc2626,#991b1b);color:white;border:none;border-radius:8px;font-size:0.85rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;box-shadow:0 4px 14px rgba(220,38,38,0.35);}
+.dl-btn:hover{opacity:0.9;}
+
+/* ── SHARED CARD SHELL ── */
+.mockup{width:1100px;background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 8px 48px rgba(0,0,0,0.45);}
+
+/* ── HERO BANNERS ── */
+.hero{padding:32px 36px 26px;color:white;position:relative;overflow:hidden;}
+.hero::after{content:'';position:absolute;top:-40%;right:-5%;width:45%;height:200%;background:radial-gradient(circle,rgba(255,255,255,0.07) 0%,transparent 70%);pointer-events:none;}
+.hero-badge{display:inline-block;padding:3px 12px;border-radius:20px;font-size:0.68rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:10px;border:1px solid rgba(255,255,255,0.25);background:rgba(255,255,255,0.1);}
+.hero h2{font-size:1.75rem;font-weight:800;letter-spacing:-0.02em;margin-bottom:6px;}
+.hero p{font-size:0.88rem;opacity:0.8;max-width:580px;line-height:1.6;margin-bottom:18px;}
+.hero-stats{display:flex;gap:24px;flex-wrap:wrap;}
+.hs{display:flex;flex-direction:column;gap:1px;}
+.hs-num{font-size:1.35rem;font-weight:800;line-height:1;}
+.hs-label{font-size:0.62rem;opacity:0.65;text-transform:uppercase;letter-spacing:0.06em;}
+
+/* hero colors */
+.hero-violet{background:linear-gradient(135deg,#1e1b4b 0%,#3730a3 50%,#4f46e5 100%);}
+.hero-red   {background:linear-gradient(135deg,#0f172a 0%,#1e1b4b 35%,#3730a3 65%,#991b1b 100%);}
+.hero-blue  {background:linear-gradient(135deg,#0c4a6e 0%,#0369a1 50%,#0284c7 100%);}
+.hero-green {background:linear-gradient(135deg,#052e16 0%,#166534 50%,#16a34a 100%);}
+.hero-amber {background:linear-gradient(135deg,#451a03 0%,#92400e 50%,#d97706 100%);}
+
+/* ── BODY ── */
+.mbody{padding:24px 28px 28px;display:flex;flex-direction:column;gap:16px;}
+
+/* FORM elements */
+.form-row{display:grid;gap:12px;}
+.gr-2{grid-template-columns:1fr 1fr;}
+.gr-3{grid-template-columns:1fr 1fr 1fr;}
+.fld{display:flex;flex-direction:column;gap:5px;}
+.fld label{font-size:0.75rem;font-weight:700;color:#4b5563;}
+.fld input,.fld select,.fld textarea{padding:9px 12px;border:1.5px solid #d1d5db;border-radius:8px;font-size:0.82rem;font-family:'Inter',sans-serif;color:#111827;background:#fff;width:100%;}
+.fld textarea{resize:none;line-height:1.6;}
+.fld input:focus,.fld textarea:focus{outline:none;border-color:#dc2626;box-shadow:0 0 0 3px rgba(220,38,38,0.1);}
+.card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px 22px;box-shadow:0 1px 4px rgba(0,0,0,0.06);}
+.card-title{font-size:0.82rem;font-weight:700;color:#1f2937;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.sec-num{background:linear-gradient(135deg,#dc2626,#7f1d1d);color:white;font-size:0.65rem;font-weight:800;padding:2px 7px;border-radius:5px;}
+.big-btn{width:100%;padding:13px;background:linear-gradient(135deg,#dc2626,#991b1b);color:white;border:none;border-radius:10px;font-size:0.95rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;box-shadow:0 4px 14px rgba(220,38,38,0.3);letter-spacing:0.01em;}
+
+/* OUTPUT panels */
+.output-panel{background:#f9fafb;border:1px solid #e5e7eb;border-radius:12px;padding:20px 22px;}
+.out-title{font-size:0.85rem;font-weight:800;color:#1f2937;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.out-badge{padding:2px 8px;border-radius:5px;font-size:0.65rem;font-weight:700;}
+.ob-green{background:#dcfce7;color:#15803d;}
+.ob-red{background:#fee2e2;color:#dc2626;}
+.ob-blue{background:#dbeafe;color:#1d4ed8;}
+
+/* Test plan output */
+.tp-section{margin-bottom:14px;}
+.tp-section h4{font-size:0.75rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;}
+.tp-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.tp-cell{background:#fff;border:1px solid #e5e7eb;border-radius:7px;padding:9px 11px;}
+.tp-cell label{display:block;font-size:0.62rem;font-weight:700;color:#9ca3af;text-transform:uppercase;margin-bottom:3px;}
+.tp-cell p{font-size:0.78rem;color:#374151;line-height:1.5;}
+.test-case-row{background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:10px 13px;margin-bottom:7px;}
+.tc-header{display:flex;align-items:center;gap:8px;margin-bottom:5px;}
+.tc-id{font-family:'JetBrains Mono',monospace;font-size:0.68rem;font-weight:700;background:#f3f4f6;padding:1px 6px;border-radius:4px;color:#4b5563;}
+.tc-type{font-size:0.62rem;font-weight:700;padding:2px 7px;border-radius:10px;}
+.t-pos{background:#dcfce7;color:#15803d;}
+.t-neg{background:#fee2e2;color:#dc2626;}
+.t-edge{background:#fef9c3;color:#854d0e;}
+.t-sec{background:#fff7ed;color:#c2410c;}
+.t-perf{background:#ede9fe;color:#5b21b6;}
+.tc-title{font-size:0.8rem;font-weight:600;color:#1f2937;}
+.tc-steps{font-size:0.72rem;color:#6b7280;margin-top:3px;line-height:1.5;}
+
+/* Defect radar */
+.dr-drop{border:2px dashed #d1d5db;border-radius:10px;padding:20px;text-align:center;background:#f9fafb;margin-bottom:12px;}
+.dr-drop p{font-size:0.82rem;color:#6b7280;}
+.ticket{background:#fff;border:1.5px solid #e5e7eb;border-radius:10px;overflow:hidden;margin-bottom:8px;}
+.ticket.crit{border-left:4px solid #dc2626;}
+.ticket.high{border-left:4px solid #d97706;}
+.ticket.med {border-left:4px solid #2563eb;}
+.t-hdr{display:flex;align-items:center;gap:7px;padding:10px 14px;flex-wrap:wrap;}
+.t-id{font-family:'JetBrains Mono',monospace;font-size:0.7rem;font-weight:700;background:#f3f4f6;padding:1px 6px;border-radius:4px;color:#4b5563;}
+.sev{padding:2px 7px;border-radius:4px;font-size:0.65rem;font-weight:800;color:#fff;}
+.sev.crit{background:#dc2626;}.sev.high{background:#d97706;}.sev.med{background:#2563eb;}
+.pri{padding:2px 6px;border-radius:4px;font-size:0.65rem;font-weight:800;background:#f3f4f6;color:#4b5563;}
+.t-title{font-size:0.82rem;font-weight:700;color:#1f2937;padding:0 14px 10px;}
+.t-body{padding:10px 14px;background:#f9fafb;border-top:1px solid #f3f4f6;}
+.rc-row{display:flex;gap:10px;align-items:flex-start;}
+.rc-layer{background:#1e1b4b;border-radius:6px;padding:6px 10px;font-family:'JetBrains Mono',monospace;font-size:0.68rem;color:#a5b4fc;font-weight:700;white-space:nowrap;}
+.rc-text{font-size:0.75rem;color:#4b5563;line-height:1.5;}
+
+/* Strategy */
+.strat-section{background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:12px 14px;margin-bottom:8px;}
+.strat-hdr{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.strat-icon{font-size:1rem;}
+.strat-title{font-size:0.8rem;font-weight:700;color:#1f2937;}
+.strat-pill{padding:2px 8px;border-radius:10px;font-size:0.62rem;font-weight:700;background:#ede9fe;color:#5b21b6;}
+.strat-list{display:flex;flex-direction:column;gap:4px;}
+.strat-item{font-size:0.75rem;color:#4b5563;padding-left:14px;position:relative;line-height:1.5;}
+.strat-item::before{content:'•';position:absolute;left:2px;color:#dc2626;font-weight:700;}
+
+/* Metrics */
+.metrics-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px;}
+.metric-card{background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:14px 16px;text-align:center;}
+.metric-num{font-size:1.8rem;font-weight:900;line-height:1;}
+.metric-label{font-size:0.65rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:0.06em;margin-top:3px;}
+.m-green{color:#15803d;}.m-blue{color:#1d4ed8;}.m-red{color:#dc2626;}.m-purple{color:#7c3aed;}
+.progress-section{background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:16px 18px;}
+.prog-title{font-size:0.75rem;font-weight:700;color:#4b5563;margin-bottom:10px;}
+.prog-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.prog-label{font-size:0.72rem;color:#374151;width:130px;flex-shrink:0;}
+.prog-bar-bg{flex:1;height:8px;background:#f3f4f6;border-radius:10px;overflow:hidden;}
+.prog-bar{height:100%;border-radius:10px;}
+.prog-pct{font-size:0.7rem;font-weight:700;color:#6b7280;width:32px;text-align:right;}
+</style>
+</head>
+<body>
+
+<h1>Qualia — Feature Screenshots</h1>
+<p class="subtitle">Open each card in browser · Click Download → saves as PNG</p>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- 1. TEST PLAN GENERATOR                     -->
+<!-- ══════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-label">01 — Test Plan Generator</div>
+  <button class="dl-btn" onclick="dl('s1','Qualia-TestPlanGenerator.png')">⬇ Download PNG</button>
+  <div class="mockup" id="s1">
+    <div class="hero hero-violet">
+      <div class="hero-badge">AI Quality Intelligence</div>
+      <h2>Enterprise Test Plan Generator</h2>
+      <p>Paste your PRD, user story, feature spec, or acceptance criteria — get a full IEEE 829 test plan in seconds.</p>
+      <div class="hero-stats">
+        <div class="hs"><span class="hs-num">IEEE 829</span><span class="hs-label">Standard</span></div>
+        <div class="hs"><span class="hs-num">5</span><span class="hs-label">Test Categories</span></div>
+        <div class="hs"><span class="hs-num">&lt;60s</span><span class="hs-label">Generation Time</span></div>
+        <div class="hs"><span class="hs-num">Any</span><span class="hs-label">Product Type</span></div>
+      </div>
+    </div>
+    <div class="mbody">
+      <div class="card">
+        <div class="card-title"><span class="sec-num">01</span> Requirements Input</div>
+        <div class="form-row gr-3" style="margin-bottom:12px;">
+          <div class="fld"><label>Application Name *</label><input value="Customer Checkout Portal"/></div>
+          <div class="fld"><label>Product Type</label><select><option>E-Commerce Platform</option></select></div>
+          <div class="fld"><label>Bug Tracker</label><select><option>Jira</option></select></div>
+        </div>
+        <div class="fld"><label>Paste Requirements / PRD / User Story *</label>
+          <textarea rows="3">As a registered user, I want to complete a purchase using saved payment methods so that checkout is faster. The system must validate card details, apply discount codes, calculate tax by region, and send a confirmation email within 30 seconds of payment.</textarea>
+        </div>
+      </div>
+      <button class="big-btn">⚡ Generate Test Plan</button>
+      <div class="output-panel">
+        <div class="out-title">📋 Generated Test Plan <span class="out-badge ob-green">✓ READY</span></div>
+        <div class="tp-section">
+          <h4>Overview</h4>
+          <div class="tp-row">
+            <div class="tp-cell"><label>Test Objective</label><p>Validate end-to-end checkout flow including payment, tax calculation, discount and email confirmation.</p></div>
+            <div class="tp-cell"><label>Scope</label><p>Payment processing, cart validation, discount codes, regional tax engine, notification service.</p></div>
+            <div class="tp-cell"><label>Out of Scope</label><p>Third-party payment gateway internals, email service infrastructure, refund workflows.</p></div>
+            <div class="tp-cell"><label>Test Environment</label><p>Staging (prod-mirror) · Chrome 124 · Windows 11 · Test card: 4242-4242-4242-4242</p></div>
+          </div>
+        </div>
+        <div class="tp-section">
+          <h4>Test Cases (Showing 3 of 24)</h4>
+          <div class="test-case-row">
+            <div class="tc-header"><span class="tc-id">TC-001</span><span class="tc-type t-pos">Positive</span><span class="tc-title">Successful checkout with saved Visa card</span></div>
+            <div class="tc-steps">Pre: User logged in, item in cart, saved card on file → Navigate to checkout → Select saved Visa → Click Pay Now → Expect: Order confirmation + email within 30s</div>
+          </div>
+          <div class="test-case-row">
+            <div class="tc-header"><span class="tc-id">TC-007</span><span class="tc-type t-neg">Negative</span><span class="tc-title">Expired discount code shows clear error</span></div>
+            <div class="tc-steps">Enter expired code "SAVE20" → Click Apply → Expect: Inline error "This code has expired" · Cart total unchanged · No page reload</div>
+          </div>
+          <div class="test-case-row">
+            <div class="tc-header"><span class="tc-id">TC-014</span><span class="tc-type t-sec">Security</span><span class="tc-title">SQL injection attempt in discount field blocked</span></div>
+            <div class="tc-steps">Enter "'; DROP TABLE orders;--" → Click Apply → Expect: 400 Bad Request or sanitised error · No DB error exposed in response</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- 2. DEFECT RADAR                            -->
+<!-- ══════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-label">02 — Defect Radar</div>
+  <button class="dl-btn" onclick="dl('s2','Qualia-DefectRadar.png')">⬇ Download PNG</button>
+  <div class="mockup" id="s2">
+    <div class="hero hero-red">
+      <div class="hero-badge">AI Bug Intelligence</div>
+      <h2>Defect Radar</h2>
+      <p>AI-powered bug detection &amp; root cause intelligence. Upload screenshots, log files or HAR traces — get structured RICE-POT tickets instantly.</p>
+      <div class="hero-stats">
+        <div class="hs"><span class="hs-num">25+</span><span class="hs-label">Product Types</span></div>
+        <div class="hs"><span class="hs-num">5</span><span class="hs-label">Bug Trackers</span></div>
+        <div class="hs"><span class="hs-num">7</span><span class="hs-label">RICE-POT Dimensions</span></div>
+        <div class="hs"><span class="hs-num">Auto</span><span class="hs-label">Env Detection</span></div>
+      </div>
+    </div>
+    <div class="mbody">
+      <div class="card">
+        <div class="card-title"><span class="sec-num">01</span> Evidence Uploaded</div>
+        <div style="display:flex;gap:10px;margin-bottom:10px;">
+          <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:8px 12px;display:flex;align-items:center;gap:10px;flex:1;">
+            <div style="width:52px;height:40px;background:#fee2e2;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:700;color:#dc2626;">IMG</div>
+            <div><div style="font-size:0.8rem;font-weight:600;color:#1f2937;">checkout-blank-screen.png</div><div style="font-size:0.7rem;color:#9ca3af;">234 KB · Image</div></div>
+          </div>
+          <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:8px 12px;display:flex;align-items:center;gap:10px;flex:1;">
+            <div style="width:52px;height:40px;background:#f3f4f6;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:0.65rem;font-weight:700;color:#4b5563;font-family:monospace;">.log</div>
+            <div><div style="font-size:0.8rem;font-weight:600;color:#1f2937;">console-errors.log</div><div style="font-size:0.7rem;color:#9ca3af;">18 KB · Text</div></div>
+          </div>
+        </div>
+        <div class="form-row gr-3">
+          <div class="fld"><label>Application Name *</label><input value="Customer Portal"/></div>
+          <div class="fld"><label>Application Type</label><select><option>Web Application (Browser)</option></select></div>
+          <div class="fld"><label>Environment</label><select><option>Production</option></select></div>
+          <div class="fld"><label>Browser / Client</label><select><option>Chrome (latest)</option></select></div>
+          <div class="fld"><label>OS (Auto-detected)</label><input value="Windows 11"/></div>
+          <div class="fld"><label>Locale</label><input value="en-US"/></div>
+        </div>
+      </div>
+      <div class="output-panel">
+        <div class="out-title">🔍 Defect Radar Report <span class="out-badge ob-red">3 Bugs Found</span></div>
+        <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
+          <div style="background:#fef2f2;border-radius:8px;padding:8px 14px;text-align:center;"><div style="font-size:1.3rem;font-weight:900;color:#dc2626;">1</div><div style="font-size:0.62rem;color:#dc2626;font-weight:700;text-transform:uppercase;">Critical</div></div>
+          <div style="background:#fffbeb;border-radius:8px;padding:8px 14px;text-align:center;"><div style="font-size:1.3rem;font-weight:900;color:#d97706;">1</div><div style="font-size:0.62rem;color:#d97706;font-weight:700;text-transform:uppercase;">High</div></div>
+          <div style="background:#eff6ff;border-radius:8px;padding:8px 14px;text-align:center;"><div style="font-size:1.3rem;font-weight:900;color:#2563eb;">1</div><div style="font-size:0.62rem;color:#2563eb;font-weight:700;text-transform:uppercase;">Medium</div></div>
+        </div>
+        <div class="ticket crit">
+          <div class="t-hdr"><span class="t-id">DR-001</span><span class="sev crit">Critical</span><span class="pri">P0</span><span style="font-size:0.62rem;font-weight:700;background:#fee2e2;color:#dc2626;border:1px solid #fecaca;padding:2px 7px;border-radius:4px;">Bug</span></div>
+          <div class="t-title">Checkout Page — Renders blank white screen after payment submission</div>
+          <div class="t-body">
+            <div class="rc-row">
+              <div class="rc-layer">FRONTEND:UI-STATE</div>
+              <div class="rc-text">TypeError: Cannot read properties of undefined (reading 'orderId') in OrderConfirmation.jsx:47. Promise resolves before component mounts — race condition in async payment callback.</div>
+            </div>
+          </div>
+        </div>
+        <div class="ticket high">
+          <div class="t-hdr"><span class="t-id">DR-002</span><span class="sev high">High</span><span class="pri">P1</span><span style="font-size:0.62rem;font-weight:700;background:#fef9c3;color:#854d0e;border:1px solid #fde047;padding:2px 7px;border-radius:4px;">Performance Issue</span></div>
+          <div class="t-title">Cart API — Response time exceeds 8s under concurrent load</div>
+          <div class="t-body">
+            <div class="rc-row">
+              <div class="rc-layer">PERFORMANCE:N+1-QUERY</div>
+              <div class="rc-text">N+1 query pattern detected in cart item fetching — missing JOIN on product_variants table causing 47 sequential DB calls per request.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- 3. TEST CASE GENERATOR                     -->
+<!-- ══════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-label">03 — Test Case Generator</div>
+  <button class="dl-btn" onclick="dl('s3','Qualia-TestCaseGenerator.png')">⬇ Download PNG</button>
+  <div class="mockup" id="s3">
+    <div class="hero hero-blue">
+      <div class="hero-badge">Smart Test Coverage</div>
+      <h2>Test Case Generator</h2>
+      <p>Generate comprehensive test cases across all categories — positive, negative, edge, security and performance — from any feature description.</p>
+      <div class="hero-stats">
+        <div class="hs"><span class="hs-num">5</span><span class="hs-label">Test Categories</span></div>
+        <div class="hs"><span class="hs-num">BDD</span><span class="hs-label">Gherkin Ready</span></div>
+        <div class="hs"><span class="hs-num">Export</span><span class="hs-label">Excel · CSV · MD</span></div>
+      </div>
+    </div>
+    <div class="mbody">
+      <div class="card">
+        <div class="card-title"><span class="sec-num">01</span> Feature Description</div>
+        <div class="form-row gr-2" style="margin-bottom:12px;">
+          <div class="fld"><label>Feature Name *</label><input value="User Login with MFA"/></div>
+          <div class="fld"><label>Product Type</label><select><option>Mobile Native — iOS (Swift/Obj-C)</option></select></div>
+        </div>
+        <div class="fld"><label>Feature Description *</label>
+          <textarea rows="2">Users can log in using email + password. If MFA is enabled, a 6-digit OTP is sent to the registered mobile number. OTP expires in 5 minutes. After 3 failed attempts the account locks for 15 minutes.</textarea>
+        </div>
+      </div>
+      <button class="big-btn">⚡ Generate Test Cases</button>
+      <div class="output-panel">
+        <div class="out-title">📋 Generated Test Cases <span class="out-badge ob-blue">28 Cases</span></div>
+        <div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;">
+          <span style="background:#dcfce7;color:#15803d;border-radius:10px;padding:3px 10px;font-size:0.68rem;font-weight:700;">✓ Positive  8</span>
+          <span style="background:#fee2e2;color:#dc2626;border-radius:10px;padding:3px 10px;font-size:0.68rem;font-weight:700;">✗ Negative  7</span>
+          <span style="background:#fef9c3;color:#854d0e;border-radius:10px;padding:3px 10px;font-size:0.68rem;font-weight:700;">◈ Edge  5</span>
+          <span style="background:#fff7ed;color:#c2410c;border-radius:10px;padding:3px 10px;font-size:0.68rem;font-weight:700;">🔒 Security  5</span>
+          <span style="background:#ede9fe;color:#5b21b6;border-radius:10px;padding:3px 10px;font-size:0.68rem;font-weight:700;">⚡ Performance  3</span>
+        </div>
+        <div class="test-case-row"><div class="tc-header"><span class="tc-id">TC-001</span><span class="tc-type t-pos">Positive</span><span class="tc-title">Successful login with valid credentials + MFA OTP</span></div><div class="tc-steps">Enter valid email + password → Submit → Receive OTP → Enter 6-digit code within 5 min → Expect: Home screen loads, session token issued, MFA timestamp recorded</div></div>
+        <div class="test-case-row"><div class="tc-header"><span class="tc-id">TC-011</span><span class="tc-type t-neg">Negative</span><span class="tc-title">Account locks after 3 consecutive failed OTP attempts</span></div><div class="tc-steps">Enter valid credentials → Enter wrong OTP 3 times → Expect: Account locked message, 15-min countdown shown, login button disabled, unlock email triggered</div></div>
+        <div class="test-case-row"><div class="tc-header"><span class="tc-id">TC-016</span><span class="tc-type t-edge">Edge</span><span class="tc-title">OTP submitted exactly at 5-minute expiry boundary</span></div><div class="tc-steps">Start timer → Wait 4m 59s → Submit valid OTP at T+5:00 exactly → Expect: Graceful "OTP expired" message, not server 500</div></div>
+        <div class="test-case-row"><div class="tc-header"><span class="tc-id">TC-021</span><span class="tc-type t-sec">Security</span><span class="tc-title">Brute-force OTP enumeration blocked by rate limiter</span></div><div class="tc-steps">Script 100 OTP attempts in 10s → Expect: 429 Too Many Requests after attempt 3, IP temporarily blocked, security alert logged</div></div>
+        <div class="test-case-row"><div class="tc-header"><span class="tc-id">TC-026</span><span class="tc-type t-perf">Performance</span><span class="tc-title">MFA OTP delivery under 3 seconds at peak load</span></div><div class="tc-steps">Simulate 500 concurrent login requests → Measure OTP delivery time → Expect: p95 OTP delivery &lt; 3s, no SMS gateway errors</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- 4. TEST STRATEGY BUILDER                   -->
+<!-- ══════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-label">04 — Test Strategy Builder</div>
+  <button class="dl-btn" onclick="dl('s4','Qualia-TestStrategyBuilder.png')">⬇ Download PNG</button>
+  <div class="mockup" id="s4">
+    <div class="hero hero-green">
+      <div class="hero-badge">Strategic QA Planning</div>
+      <h2>Test Strategy Builder</h2>
+      <p>Generate a complete, publication-ready test strategy document from a product description. Covers scope, risk, tools, coverage and exit criteria.</p>
+      <div class="hero-stats">
+        <div class="hs"><span class="hs-num">10+</span><span class="hs-label">Strategy Sections</span></div>
+        <div class="hs"><span class="hs-num">Risk</span><span class="hs-label">Based Approach</span></div>
+        <div class="hs"><span class="hs-num">PDF</span><span class="hs-label">Export Ready</span></div>
+      </div>
+    </div>
+    <div class="mbody">
+      <div class="card">
+        <div class="card-title"><span class="sec-num">01</span> Product Details</div>
+        <div class="form-row gr-2" style="margin-bottom:12px;">
+          <div class="fld"><label>Product Name *</label><input value="HealthTrack Pro — Patient Management System"/></div>
+          <div class="fld"><label>Product Type</label><select><option>Healthcare / MedTech System</option></select></div>
+        </div>
+        <div class="fld"><label>Product Description *</label>
+          <textarea rows="2">A HIPAA-compliant web + mobile platform for hospitals to manage patient records, appointment scheduling, prescription tracking and real-time lab result sharing with physicians and patients.</textarea>
+        </div>
+      </div>
+      <button class="big-btn">🏗️ Build Test Strategy</button>
+      <div class="output-panel">
+        <div class="out-title">📄 Test Strategy Document <span class="out-badge ob-green">✓ Generated</span></div>
+        <div class="strat-section">
+          <div class="strat-hdr"><span class="strat-icon">🎯</span><span class="strat-title">Test Objectives</span><span class="strat-pill">High Priority</span></div>
+          <div class="strat-list">
+            <div class="strat-item">Ensure HIPAA compliance — zero PII leakage across all data flows</div>
+            <div class="strat-item">Validate real-time lab result delivery within 5s of physician submission</div>
+            <div class="strat-item">Verify appointment scheduling handles concurrent bookings without double-allocation</div>
+          </div>
+        </div>
+        <div class="strat-section">
+          <div class="strat-hdr"><span class="strat-icon">⚠️</span><span class="strat-title">Risk Register</span><span class="strat-pill">4 Risks Identified</span></div>
+          <div class="strat-list">
+            <div class="strat-item"><strong>Critical:</strong> Patient record mix-up under concurrent edit — race condition in EHR write lock</div>
+            <div class="strat-item"><strong>High:</strong> Prescription data exposed via insecure direct object reference (IDOR)</div>
+            <div class="strat-item"><strong>Medium:</strong> Mobile offline sync conflict when reconnecting after network loss</div>
+          </div>
+        </div>
+        <div class="strat-section">
+          <div class="strat-hdr"><span class="strat-icon">🔧</span><span class="strat-title">Recommended Tools</span></div>
+          <div style="display:flex;gap:7px;flex-wrap:wrap;">
+            <span style="background:#f3f4f6;border:1px solid #e5e7eb;border-radius:6px;padding:3px 10px;font-size:0.7rem;font-weight:700;color:#374151;">Playwright (E2E)</span>
+            <span style="background:#f3f4f6;border:1px solid #e5e7eb;border-radius:6px;padding:3px 10px;font-size:0.7rem;font-weight:700;color:#374151;">Postman (API)</span>
+            <span style="background:#f3f4f6;border:1px solid #e5e7eb;border-radius:6px;padding:3px 10px;font-size:0.7rem;font-weight:700;color:#374151;">OWASP ZAP (Security)</span>
+            <span style="background:#f3f4f6;border:1px solid #e5e7eb;border-radius:6px;padding:3px 10px;font-size:0.7rem;font-weight:700;color:#374151;">k6 (Load)</span>
+            <span style="background:#f3f4f6;border:1px solid #e5e7eb;border-radius:6px;padding:3px 10px;font-size:0.7rem;font-weight:700;color:#374151;">Appium (Mobile)</span>
+          </div>
+        </div>
+        <div class="strat-section">
+          <div class="strat-hdr"><span class="strat-icon">✅</span><span class="strat-title">Exit Criteria</span></div>
+          <div class="strat-list">
+            <div class="strat-item">100% of P0/P1 test cases passed · Zero open Critical bugs</div>
+            <div class="strat-item">Security penetration test signed off by compliance officer</div>
+            <div class="strat-item">Load test: 2,000 concurrent users · p95 response &lt; 2s</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- 5. TEST METRICS EXPORTER                   -->
+<!-- ══════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-label">05 — Test Metrics Exporter</div>
+  <button class="dl-btn" onclick="dl('s5','Qualia-TestMetricsExporter.png')">⬇ Download PNG</button>
+  <div class="mockup" id="s5">
+    <div class="hero hero-amber">
+      <div class="hero-badge">QA Intelligence Dashboard</div>
+      <h2>Test Metrics Exporter</h2>
+      <p>Generate professional QA metrics reports — coverage, defect density, pass rates and trends — ready to share with stakeholders instantly.</p>
+      <div class="hero-stats">
+        <div class="hs"><span class="hs-num">Real</span><span class="hs-label">Time Metrics</span></div>
+        <div class="hs"><span class="hs-num">Excel</span><span class="hs-label">CSV · PDF Export</span></div>
+        <div class="hs"><span class="hs-num">Auto</span><span class="hs-label">Trend Analysis</span></div>
+      </div>
+    </div>
+    <div class="mbody">
+      <div class="card">
+        <div class="card-title"><span class="sec-num">01</span> Sprint / Release Details</div>
+        <div class="form-row gr-3">
+          <div class="fld"><label>Project Name *</label><input value="Payments v3.2 — Sprint 18"/></div>
+          <div class="fld"><label>Sprint Duration</label><input value="Jun 2 – Jun 16, 2026"/></div>
+          <div class="fld"><label>Team Size</label><input value="4 QA Engineers"/></div>
+          <div class="fld"><label>Total Test Cases</label><input value="186"/></div>
+          <div class="fld"><label>Passed</label><input value="171"/></div>
+          <div class="fld"><label>Failed / Blocked</label><input value="9 / 6"/></div>
+        </div>
+      </div>
+      <div class="output-panel">
+        <div class="out-title">📊 QA Metrics Report <span class="out-badge ob-green">Sprint 18</span></div>
+        <div class="metrics-grid">
+          <div class="metric-card"><div class="metric-num m-green">91.9%</div><div class="metric-label">Pass Rate</div></div>
+          <div class="metric-card"><div class="metric-num m-blue">186</div><div class="metric-label">Total Cases</div></div>
+          <div class="metric-card"><div class="metric-num m-red">9</div><div class="metric-label">Defects Found</div></div>
+          <div class="metric-card"><div class="metric-num m-purple">2.3</div><div class="metric-label">Defect Density</div></div>
+        </div>
+        <div class="progress-section">
+          <div class="prog-title">Coverage by Module</div>
+          <div class="prog-row"><span class="prog-label">Payment Gateway</span><div class="prog-bar-bg"><div class="prog-bar" style="width:96%;background:linear-gradient(90deg,#16a34a,#22c55e);"></div></div><span class="prog-pct">96%</span></div>
+          <div class="prog-row"><span class="prog-label">Checkout Flow</span><div class="prog-bar-bg"><div class="prog-bar" style="width:92%;background:linear-gradient(90deg,#2563eb,#60a5fa);"></div></div><span class="prog-pct">92%</span></div>
+          <div class="prog-row"><span class="prog-label">Discount Engine</span><div class="prog-bar-bg"><div class="prog-bar" style="width:88%;background:linear-gradient(90deg,#7c3aed,#a78bfa);"></div></div><span class="prog-pct">88%</span></div>
+          <div class="prog-row"><span class="prog-label">Tax Calculation</span><div class="prog-bar-bg"><div class="prog-bar" style="width:84%;background:linear-gradient(90deg,#d97706,#fbbf24);"></div></div><span class="prog-pct">84%</span></div>
+          <div class="prog-row"><span class="prog-label">Email Notifications</span><div class="prog-bar-bg"><div class="prog-bar" style="width:79%;background:linear-gradient(90deg,#dc2626,#f87171);"></div></div><span class="prog-pct">79%</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+<script>
+async function dl(id, filename) {
+  const el = document.getElementById(id);
+  const canvas = await html2canvas(el, {
+    scale: 2,
+    useCORS: true,
+    backgroundColor: '#ffffff',
+    logging: false,
+    scrollX: 0,
+    scrollY: -window.scrollY,
+  });
+  const a = document.createElement('a');
+  a.download = filename;
+  a.href = canvas.toDataURL('image/png');
+  a.click();
+}
+</script>
+</body>
+</html>
