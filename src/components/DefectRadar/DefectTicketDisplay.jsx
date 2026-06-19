@@ -487,7 +487,7 @@ function BugTrackerPanel({ tickets, onPushAll, pushStatus, isPushingAll, onToolC
 }
 
 /* ── Main display ───────────────────────────────────── */
-export default function DefectTicketDisplay({ result }) {
+export default function DefectTicketDisplay({ result, appVersion }) {
   const [pushStatus,   setPushStatus]   = useState({});
   const [isPushingAll, setIsPushingAll] = useState(false);
   const [activeTool,   setActiveTool]   = useState(() => loadBtConfig().activeTool || '');
@@ -499,7 +499,8 @@ export default function DefectTicketDisplay({ result }) {
   const handlePush = async (ticket, toolId, toolCfg) => {
     setPushStatus(prev => ({ ...prev, [ticket.ticketId]: { status: 'pushing' } }));
     try {
-      const res = await bugTrackerService.push(toolId, ticket, toolCfg);
+      const enriched = { ...ticket, buildVersion: appVersion || ticket.environment?.applicationVersion || '' };
+      const res = await bugTrackerService.push(toolId, enriched, toolCfg);
       setPushStatus(prev => ({ ...prev, [ticket.ticketId]: { status: 'done', id: res.id, url: res.url } }));
     } catch (err) {
       setPushStatus(prev => ({ ...prev, [ticket.ticketId]: { status: 'error', error: err.message } }));

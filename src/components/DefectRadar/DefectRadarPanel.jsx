@@ -505,7 +505,7 @@ export default function DefectRadarPanel() {
       )}
 
       {/* Results */}
-      {result && <DefectTicketDisplay result={result} />}
+      {result && <DefectTicketDisplay result={result} appVersion={appVersion} />}
     </div>
   );
 }
