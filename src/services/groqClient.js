@@ -8,20 +8,12 @@
 
 class GroqClient {
   constructor(config) {
-    // config: { apiKey, model }
-    this.apiKey = config.apiKey || process.env.REACT_APP_GROQ_API_KEY;
-    this.model = config.model || 'openai/gpt-oss-120b';
-    this.baseUrl = 'https://api.groq.com/openai/v1';
+    // config: { model } — apiKey is now managed server-side via /api/groq
+    this.model = config.model || 'llama-3.3-70b-versatile';
+    this.baseUrl = '/api/groq';
     this.timeout = 60000; // 60 seconds for LLM response
     this.rateLimitDelay = 1000; // 1 second between calls (free tier safety)
     this.lastCallTime = 0;
-  }
-
-  /**
-   * Get authorization header
-   */
-  getAuthHeader() {
-    return `Bearer ${this.apiKey}`;
   }
 
   /**
@@ -45,12 +37,9 @@ class GroqClient {
   async validateConnection() {
     try {
       // Simple test call to verify API key
-      const response = await fetch(`${this.baseUrl}/chat/completions`, {
+      const response = await fetch(this.baseUrl, {
         method: 'POST',
-        headers: {
-          'Authorization': this.getAuthHeader(),
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           model: this.model,
           messages: [
@@ -95,12 +84,9 @@ class GroqClient {
     const timeoutId = setTimeout(() => controller.abort(), this.timeout);
 
     try {
-      const response = await fetch(`${this.baseUrl}/chat/completions`, {
+      const response = await fetch(this.baseUrl, {
         method: 'POST',
-        headers: {
-          'Authorization': this.getAuthHeader(),
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           model: this.model,
           messages: [
@@ -177,12 +163,9 @@ class GroqClient {
     await this.applyRateLimit();
 
     try {
-      const response = await fetch(`${this.baseUrl}/chat/completions`, {
+      const response = await fetch(this.baseUrl, {
         method: 'POST',
-        headers: {
-          'Authorization': this.getAuthHeader(),
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           model: this.model,
           messages: [
