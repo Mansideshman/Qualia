@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useRef } from 'react';
+import * as XLSX from 'xlsx';
 import '../styles/TestPlanDisplay.css';
 
 const TABS = [
@@ -136,7 +137,86 @@ export default function TestPlanDisplay({ testPlan }) {
       triggerDownload(blob, `${filename}.md`);
     } else if (format === 'print') {
       window.print();
+    } else if (format === 'excel') {
+      handleExportExcel(productName, filename);
     }
+  };
+
+  const handleExportExcel = (productName, filename) => {
+    const wb = XLSX.utils.book_new();
+
+    // ── Sheet 1: Overview ───────────────────────────────────
+    const overviewRows = [
+      [`Test Plan — ${productName}`], [],
+      ['Product Name',  meta.productName || testPlan.summary || ''],
+      ['Version',       meta.productVersion || '1.0'],
+      ['Product Type',  meta.productType || testPlan.productType || ''],
+      ['Test Lead',     meta.testLead || 'QA Team'],
+      ['Status',        meta.status || 'Draft'],
+      ['Generated At',  new Date(testPlan.generatedAt).toLocaleString()], [],
+      ['Objective',     objective?.purposeStatement || ''], [],
+      ['Total Test Cases', counts.positive + counts.negative + counts.edge + counts.security + counts.performance + counts.accessibility],
+      ['Positive',      counts.positive],
+      ['Negative',      counts.negative],
+      ['Edge Cases',    counts.edge],
+      ['Security',      counts.security],
+      ['Performance',   counts.performance],
+      ['Accessibility', counts.accessibility],
+    ];
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(overviewRows), 'Overview');
+
+    // ── Sheet 2: All Test Cases ─────────────────────────────
+    const tcHeaders = ['ID', 'Category', 'Title', 'Module', 'Priority', 'Technique', 'Preconditions', 'Steps', 'Expected Result', 'Test Data'];
+    const tcRows = [tcHeaders];
+    [
+      { key: 'positive',      label: 'Positive'      },
+      { key: 'negative',      label: 'Negative'      },
+      { key: 'edge',          label: 'Edge Case'     },
+      { key: 'security',      label: 'Security'      },
+      { key: 'performance',   label: 'Performance'   },
+      { key: 'accessibility', label: 'Accessibility' },
+    ].forEach(({ key, label }) => {
+      (scenarios?.[key] || []).forEach(tc => {
+        tcRows.push([
+          tc.id,
+          label,
+          tc.title,
+          tc.module || '',
+          tc.priority,
+          tc.testTechnique || '',
+          (tc.preconditions || []).join('\n'),
+          (tc.steps || []).join('\n'),
+          tc.expectedResult || '',
+          tc.testData || '',
+        ]);
+      });
+    });
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(tcRows), 'Test Cases');
+
+    // ── Sheet 3: Risks ──────────────────────────────────────
+    const riskRows = [
+      ['ID', 'Description', 'Probability', 'Impact', 'Risk Score', 'Mitigation', 'Contingency', 'Owner'],
+      ...(risks || []).map(r => [r.id, r.description, r.probability, r.impact, r.riskScore, r.mitigation, r.contingency || '', r.owner]),
+    ];
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(riskRows), 'Risks');
+
+    // ── Sheet 4: Schedule ───────────────────────────────────
+    const schedRows = [
+      ['Milestone', 'Week', 'Criteria', 'Status'],
+      ...(schedule?.milestones || []).map(m => [m.milestone, m.week, m.criteria, m.status]),
+    ];
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(schedRows), 'Schedule');
+
+    // ── Sheet 5: Deliverables ───────────────────────────────
+    const delRows = [
+      ['Deliverable', 'Owner', 'Format', 'Audience'],
+      ...(deliverables?.documents || []).map(d =>
+        typeof d === 'string' ? [d, '', '', ''] : [d.deliverable || d, d.owner || '', d.format || '', d.audience || '']
+      ),
+    ];
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(delRows), 'Deliverables');
+
+    XLSX.writeFile(wb, `${filename}.xlsx`);
   };
 
   const triggerDownload = (blob, name) => {
@@ -173,7 +253,8 @@ export default function TestPlanDisplay({ testPlan }) {
         </div>
         {/* Export */}
         <div className="export-bar">
-          <span className="export-label">Export As:</span>
+          <span className="export-label">Download:</span>
+          <button className="export-btn excel-btn" onClick={() => handleExport('excel')}>📊 Excel</button>
           <button className="export-btn md-btn" onClick={() => handleExport('markdown')}>📄 Markdown</button>
           <button className="export-btn json-btn" onClick={() => handleExport('json')}>⚙️ JSON</button>
           <button className="export-btn print-btn" onClick={() => handleExport('print')}>🖨️ Print / PDF</button>

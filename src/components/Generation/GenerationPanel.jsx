@@ -4,7 +4,7 @@
  * Input: PRD · User Story · Feature Description · Acceptance Criteria
  */
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useConfig } from '../../context/ConfigContext';
 import TestPlanGenerator from '../../services/testPlanGenerator';
 import TestPlanDisplay from './TestPlanDisplay';
@@ -68,8 +68,19 @@ export default function GenerationPanel() {
   const [loadingStage, setLoadingStage] = useState('');
   const [testPlan, setTestPlan] = useState(null);
   const [error, setError] = useState('');
+  const [attachedDoc, setAttachedDoc] = useState(null);
+  const docRef = useRef(null);
 
   const activeInputType = INPUT_TYPES.find((t) => t.id === inputTypeId);
+
+  const handleDocFile = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => setAttachedDoc({ name: file.name, content: ev.target.result, size: file.size });
+    reader.readAsText(file);
+    e.target.value = '';
+  };
 
   const handleGenerate = async (e) => {
     e.preventDefault();
@@ -87,9 +98,12 @@ export default function GenerationPanel() {
       const generator = new TestPlanGenerator(config.groq.apiKey, config.groq.model);
 
       setLoadingStage('Analysing requirements...');
+      const fullReqs = requirements.trim() +
+        (attachedDoc ? `\n\n--- ATTACHED DOCUMENT: ${attachedDoc.name} ---\n${attachedDoc.content}` : '');
+
       const input = {
         productName: productName.trim(),
-        requirements: requirements.trim(),
+        requirements: fullReqs,
         productType,
         version: productVersion.trim() || '1.0',
         inputType: inputTypeId,
@@ -218,6 +232,21 @@ export default function GenerationPanel() {
               {requirements.length >= 100 && ' — the more detail you provide, the more specific the test plan'}
             </small>
           </div>
+
+          {/* Document attachment */}
+          <div className="doc-attach-row">
+            <button type="button" className="doc-attach-btn" onClick={() => docRef.current?.click()}>
+              📎 Attach Document
+            </button>
+            <span className="doc-attach-hint">.txt · .md · .json · .xml · .yaml · .csv · .feature</span>
+            {attachedDoc && (
+              <span className="doc-chip">
+                📄 {attachedDoc.name}
+                <button type="button" className="doc-chip-remove" onClick={() => setAttachedDoc(null)}>✕</button>
+              </span>
+            )}
+          </div>
+          <input ref={docRef} type="file" accept=".txt,.md,.json,.xml,.yaml,.yml,.csv,.log,.feature,.properties,.conf,.ts,.js" style={{ display: 'none' }} onChange={handleDocFile} />
 
           {error && (
             <div className="error-banner">

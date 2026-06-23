@@ -125,6 +125,9 @@ export default function TestCaseGenerator() {
   const [isDragOver, setIsDragOver] = useState(false);
   const [analyzingShot, setAnalyzingShot] = useState(false);
   const fileInputRef = useRef(null);
+  const docFileRef   = useRef(null);
+
+  const [attachedDoc, setAttachedDoc] = useState(null);
 
   /* generation state */
   const [loading, setLoading] = useState(false);
@@ -183,6 +186,15 @@ export default function TestCaseGenerator() {
     setScreenshotAnalysis('');
   };
 
+  const handleDocFile = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => setAttachedDoc({ name: file.name, content: ev.target.result });
+    reader.readAsText(file);
+    e.target.value = '';
+  };
+
   /* generate */
   const handleGenerate = useCallback(async () => {
     if (!config?.groq?.apiKey) {
@@ -213,7 +225,10 @@ export default function TestCaseGenerator() {
     const service = new TestCaseService(config.groq.apiKey, config.groq.model);
 
     /* Screenshot mode: analyze image first, then use extracted requirements */
-    let derivedRequirements = requirements;
+    let derivedRequirements = requirements.trim() +
+      (attachedDoc && inputMode === INPUT_MODES.PRD
+        ? `\n\n--- ATTACHED DOCUMENT: ${attachedDoc.name} ---\n${attachedDoc.content}`
+        : '');
     if (inputMode === INPUT_MODES.SCREENSHOT) {
       setAnalyzingShot(true);
       const base64 = screenshotPreview.split(',')[1];
@@ -259,7 +274,7 @@ export default function TestCaseGenerator() {
       clearInterval(stageTimer);
       setLoading(false);
     }
-  }, [config, inputMode, productName, module, requirements, issueKey, linkedKey, sprint, assignee, environment, selectedTypes, count, screenshotFile, screenshotPreview]);
+  }, [config, inputMode, productName, module, requirements, issueKey, linkedKey, sprint, assignee, environment, selectedTypes, count, screenshotFile, screenshotPreview, attachedDoc]);
 
   /* selection helpers */
   const toggleSelect = (id) =>
@@ -392,6 +407,19 @@ export default function TestCaseGenerator() {
                 placeholder="As a user, I want to log in with my email and password so that I can access my account.&#10;&#10;Acceptance Criteria:&#10;- Valid credentials redirect to dashboard&#10;- Invalid credentials show error message&#10;- Account locks after 5 failed attempts"
                 rows={7}
               />
+              <div className="doc-attach-row">
+                <button type="button" className="doc-attach-btn" onClick={() => docFileRef.current?.click()}>
+                  📎 Attach Document
+                </button>
+                <span className="doc-attach-hint">.txt · .md · .json · .xml · .yaml · .csv · .feature</span>
+                {attachedDoc && (
+                  <span className="doc-chip">
+                    📄 {attachedDoc.name}
+                    <button type="button" className="doc-chip-remove" onClick={() => setAttachedDoc(null)}>✕</button>
+                  </span>
+                )}
+              </div>
+              <input ref={docFileRef} type="file" accept=".txt,.md,.json,.xml,.yaml,.yml,.csv,.log,.feature,.properties,.conf,.ts,.js" style={{ display: 'none' }} onChange={handleDocFile} />
             </div>
           ) : inputMode === INPUT_MODES.SCREENSHOT ? (
             <div className="tcg-field">

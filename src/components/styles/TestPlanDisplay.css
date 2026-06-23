@@ -730,3 +730,7 @@
   .security-grid { grid-template-columns: 1fr; }
   .tools-grid { grid-template-columns: 1fr; }
 }
+
+/* ── Excel export button ─────────────────────────────────── */
+.export-btn.excel-btn { background:#16a34a; color:#fff; border:none; }
+.export-btn.excel-btn:hover { background:#15803d; }

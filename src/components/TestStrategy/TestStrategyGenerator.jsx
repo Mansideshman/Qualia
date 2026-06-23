@@ -4,7 +4,8 @@
  * RICE-POT = Risks · Items · Criteria · Environment · People · Objectives · Tools
  */
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
+import * as XLSX from 'xlsx';
 import { useConfig } from '../../context/ConfigContext';
 import TestStrategyService from '../../services/testStrategyService';
 import { exportStrategyToHTML, exportStrategyToMarkdown } from '../../services/testMetricsExporter';
@@ -320,8 +321,77 @@ export default function TestStrategyGeneratorPanel() {
   const [strategy, setStrategy] = useState(null);
   const [error, setError] = useState('');
   const [activeSection, setActiveSection] = useState('risks');
+  const [attachedDoc, setAttachedDoc] = useState(null);
+  const docRef = useRef(null);
 
   const isGroqConfigured = !!config?.groq?.apiKey;
+
+  const handleDocFile = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => setAttachedDoc({ name: file.name, content: ev.target.result });
+    reader.readAsText(file);
+    e.target.value = '';
+  };
+
+  const exportToExcel = () => {
+    if (!strategy) return;
+    const wb = XLSX.utils.book_new();
+    const pName = strategy.productName || 'Strategy';
+    const fname = `TestStrategy_${pName.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.xlsx`;
+
+    // Overview
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([
+      [`RICE-POT Test Strategy — ${pName}`], [],
+      ['Product Name', pName],
+      ['Product Type', strategy.productType || ''],
+      ['Version', strategy.metadata?.version || strategy.version || '1.0'],
+      ['Status', strategy.metadata?.status || 'Draft'],
+      ['Generated At', new Date(strategy.generatedAt).toLocaleString()], [],
+      ['Executive Summary', strategy.executiveSummary || ''],
+    ]), 'Overview');
+
+    // Risks
+    const risks = strategy.risks?.register || [];
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([
+      ['ID', 'Category', 'Risk', 'Probability', 'Impact', 'Risk Score', 'Mitigation', 'Contingency', 'Owner'],
+      ...risks.map(r => [r.id, r.category || '', r.risk, r.probability, r.impact, r.riskScore, r.mitigation, r.contingency || '', r.owner]),
+    ]), 'Risks');
+
+    // Scope
+    const inScope  = strategy.items?.inScope  || [];
+    const outScope = strategy.items?.outOfScope || [];
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([
+      ['IN SCOPE'], ['Item', 'Priority', 'Testing Type', 'Risk Level', 'Rationale'],
+      ...inScope.map(i => [i.item, i.priority, i.testingType, i.riskLevel, i.rationale]),
+      [], ['OUT OF SCOPE'], ['Item'],
+      ...outScope.map(i => [typeof i === 'string' ? i : i.item]),
+    ]), 'Scope');
+
+    // Criteria / Phases
+    const phases = strategy.criteria?.phases || [];
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([
+      ['Phase', 'Entry Criteria', 'Exit Criteria'],
+      ...phases.map(p => [p.phase, (p.entry || []).join('\n'), (p.exit || []).join('\n')]),
+    ]), 'Criteria');
+
+    // People
+    const team = strategy.people?.team || [];
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([
+      ['Role', 'Responsibilities', 'Allocation', 'Skills'],
+      ...team.map(m => [m.role, (m.responsibilities || []).join('\n'), m.allocation || '', (m.skills || []).join(', ')]),
+    ]), 'People');
+
+    // Tools
+    const tools = strategy.tools?.categories || [];
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([
+      ['Category', 'Tool', 'Purpose', 'License'],
+      ...tools.flatMap(cat => (cat.tools || []).map(t => [cat.category, t.name || t, t.purpose || '', t.license || ''])),
+    ]), 'Tools');
+
+    XLSX.writeFile(wb, fname);
+  };
 
   const handleGenerate = async (e) => {
     e.preventDefault();
@@ -336,9 +406,11 @@ export default function TestStrategyGeneratorPanel() {
       if (!config?.groq?.apiKey) throw new Error('GROQ API key not configured. Go to Settings first.');
 
       const service = new TestStrategyService(config.groq.apiKey, config.groq.model);
+      const fullReqs = requirements.trim() +
+        (attachedDoc ? `\n\n--- ATTACHED DOCUMENT: ${attachedDoc.name} ---\n${attachedDoc.content}` : '');
       const input = inputMode === 'issue'
         ? { productName: issueKey.trim().toUpperCase() || 'Tracker Issue', requirements: `Tracker Issue: ${issueKey.trim().toUpperCase()}`, productType, version: productVersion }
-        : { productName: productName.trim(), requirements: requirements.trim(), productType, version: productVersion.trim() || '1.0' };
+        : { productName: productName.trim(), requirements: fullReqs, productType, version: productVersion.trim() || '1.0' };
 
       if (inputMode === 'prd') {
         if (!productName.trim()) throw new Error('Enter a product or feature name.');
@@ -446,6 +518,21 @@ export default function TestStrategyGeneratorPanel() {
                 />
                 <small>{requirements.length} characters — more detail produces a more specific RICE-POT strategy</small>
               </div>
+
+              {/* Document attachment */}
+              <div className="doc-attach-row">
+                <button type="button" className="doc-attach-btn" onClick={() => docRef.current?.click()}>
+                  📎 Attach Document
+                </button>
+                <span className="doc-attach-hint">.txt · .md · .json · .xml · .yaml · .csv · .feature</span>
+                {attachedDoc && (
+                  <span className="doc-chip">
+                    📄 {attachedDoc.name}
+                    <button type="button" className="doc-chip-remove" onClick={() => setAttachedDoc(null)}>✕</button>
+                  </span>
+                )}
+              </div>
+              <input ref={docRef} type="file" accept=".txt,.md,.json,.xml,.yaml,.yml,.csv,.log,.feature,.properties,.conf,.ts,.js" style={{ display: 'none' }} onChange={handleDocFile} />
             </>
           ) : (
             <div className="form-row two-col">
@@ -522,6 +609,7 @@ export default function TestStrategyGeneratorPanel() {
             </div>
             <div className="export-bar">
               <span className="export-label">Download:</span>
+              <button className="export-btn excel-btn" onClick={exportToExcel}>📊 Excel</button>
               <button className="export-btn md-btn" onClick={() => exportStrategyToHTML(strategy)}>📄 HTML (PDF-ready)</button>
               <button className="export-btn print-btn" onClick={() => exportStrategyToMarkdown(strategy)}>📝 Markdown</button>
             </div>
@@ -567,6 +655,7 @@ export default function TestStrategyGeneratorPanel() {
           {/* Bottom export */}
           <div className="rp-bottom-export">
             <span className="rp-export-label">Download complete RICE-POT strategy:</span>
+            <button className="export-btn excel-btn" onClick={exportToExcel}>📊 Excel</button>
             <button className="export-btn md-btn" onClick={() => exportStrategyToHTML(strategy)}>📄 HTML (PDF-ready)</button>
             <button className="export-btn print-btn" onClick={() => exportStrategyToMarkdown(strategy)}>📝 Markdown</button>
           </div>
