@@ -249,7 +249,6 @@ export default function TestCodeGenPanel() {
           </div>
         </div>
         <div className="tcg2-header-badges">
-          <span className="tcg2-badge tcg2-badge-hot">Beats Testim & Mabl</span>
           <span className="tcg2-badge tcg2-badge-pom">POM Ready</span>
         </div>
       </div>

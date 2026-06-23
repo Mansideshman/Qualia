@@ -250,7 +250,6 @@ export default function APIContractForgePanel() {
           </div>
         </div>
         <div className="acf-header-badges">
-          <span className="acf-badge acf-badge-hot">Biggest Gap</span>
           <span className="acf-badge acf-badge-owasp">OWASP API Top 10</span>
         </div>
       </div>
