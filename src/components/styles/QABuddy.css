@@ -122,6 +122,34 @@
 
 .qab-error-close:hover { opacity: 1; }
 
+.qab-error-ratelimit {
+  background: #fefce8;
+  border-color: #fde047;
+  color: #92400e;
+}
+
+[data-theme="dark"] .qab-error-ratelimit {
+  background: rgba(234,179,8,0.1);
+  border-color: rgba(234,179,8,0.25);
+  color: #fde047;
+}
+
+.qab-countdown {
+  font-size: 12px;
+  font-weight: 700;
+  background: #92400e;
+  color: #fff;
+  border-radius: 12px;
+  padding: 2px 9px;
+  min-width: 36px;
+  text-align: center;
+}
+
+[data-theme="dark"] .qab-countdown {
+  background: rgba(234,179,8,0.3);
+  color: #fde047;
+}
+
 /* ── Messages area ───────────────────────────────────────────── */
 .qab-messages {
   flex: 1;

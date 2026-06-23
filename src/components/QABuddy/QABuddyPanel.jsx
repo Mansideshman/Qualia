@@ -2,32 +2,31 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useConfig } from '../../context/ConfigContext';
 import '../styles/QABuddy.css';
 
-const BASE_URL    = 'https://api.groq.com/openai/v1';
-const TEXT_MODEL  = 'llama-3.3-70b-versatile';
+const BASE_URL     = 'https://api.groq.com/openai/v1';
 const VISION_MODEL = 'meta-llama/llama-4-scout-17b-16e-instruct';
-const FALLBACK_MODEL = 'gemma2-9b-it';
 
-const SYSTEM_PROMPT = `You are QA Buddy, an expert QA engineer, automation specialist, and AI testing mentor built into Qualia — an AI-powered Quality Engineering platform.
+// Ordered by TPM limit (highest first) to minimise rate-limit hits:
+// llama-3.1-8b-instant → 20 000 TPM
+// gemma2-9b-it         → 15 000 TPM
+// llama-3.3-70b        →  6 000 TPM  (best quality, last resort)
+const TEXT_CHAIN = [
+  { id: 'llama-3.1-8b-instant',    maxOut: 1500 },
+  { id: 'gemma2-9b-it',            maxOut: 1500 },
+  { id: 'llama-3.3-70b-versatile', maxOut: 1500 },
+];
 
-You have deep expertise in:
-• Manual Testing — test cases, test plans, exploratory testing, UAT, regression, smoke/sanity, boundary value analysis, equivalence partitioning, decision tables
-• Automation Testing — Playwright, Cypress, Selenium (Java/Python), WebdriverIO, Appium, REST Assured, TestNG, JUnit, pytest
-• API Testing — REST, GraphQL, gRPC, Postman, Newman, contract testing, schema validation, OWASP API Top 10
-• Performance Testing — k6, JMeter, Gatling, Locust; load, stress, spike, soak testing
-• Security Testing — OWASP Top 10, API security, pen testing basics, vulnerability assessment
-• CI/CD for QA — GitHub Actions, Jenkins, Docker, parallel test execution, test pipelines
-• Prompt Engineering — crafting effective prompts for test generation, AI-assisted QA
-• AI in Testing — LLMs for QA, AI agents, autonomous testing, model evaluation
-• Career Guidance — QA roadmaps, interview prep, SDET skills, certifications (ISTQB, etc.)
+// Compact system prompt (~60 tokens vs ~500 before) — biggest single saving
+const SYSTEM_PROMPT = `You are QA Buddy, an expert QA mentor in Qualia. Answer any question about: manual testing, automation (Playwright/Cypress/Selenium/WebdriverIO/REST Assured), API testing, performance (k6/JMeter), security (OWASP), CI/CD, AI agents in testing, prompt engineering for QA, and QA careers. Answer at any level — beginner to senior SDET. Be practical, give code examples, and review attached files/images with specific actionable feedback.`;
 
-Answering philosophy:
-- Beginners: explain concepts clearly with analogies and examples
-- Intermediate: show practical patterns and code
-- Advanced: discuss trade-offs, architecture, edge cases
-- Always: be specific, include code snippets where helpful, give actionable advice
-- When reviewing code/files: identify issues, suggest improvements, explain why
-
-You have no topic restrictions within QA, testing, and software quality.`;
+/* Parse "try again in 2m30s" → total seconds */
+function parseRetrySeconds(errText) {
+  let total = 0;
+  const mMin = errText.match(/(\d+)m/i);
+  const mSec = errText.match(/(\d+(?:\.\d+)?)s/i);
+  if (mMin) total += parseInt(mMin[1], 10) * 60;
+  if (mSec) total += Math.ceil(parseFloat(mSec[1]));
+  return (total > 0 ? total : 30) + 2; // +2s buffer
+}
 
 const STARTERS = [
   { icon: '🧪', text: 'How do I write effective test cases for a login feature?' },
@@ -158,22 +157,41 @@ export default function QABuddyPanel() {
   const { config: appConfig } = useConfig();
   const apiKey = appConfig.groq?.apiKey;
 
-  const [messages, setMessages]       = useState([]);
-  const [input, setInput]             = useState('');
-  const [loading, setLoading]         = useState(false);
-  const [attachments, setAttachments] = useState([]);
-  const [error, setError]             = useState('');
-  const [isRateLimit, setIsRateLimit] = useState(false);
+  const [messages, setMessages]         = useState([]);
+  const [input, setInput]               = useState('');
+  const [loading, setLoading]           = useState(false);
+  const [attachments, setAttachments]   = useState([]);
+  const [error, setError]               = useState('');
+  const [isRateLimit, setIsRateLimit]   = useState(false);
+  const [retryCountdown, setRetryCountdown] = useState(0);
 
   const bottomRef    = useRef(null);
   const fileRef      = useRef(null);
   const folderRef    = useRef(null);
   const textareaRef  = useRef(null);
+  const pendingCallRef = useRef(null);
 
   /* auto-scroll */
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, loading]);
+
+  /* auto-retry countdown */
+  useEffect(() => {
+    if (retryCountdown <= 0) return;
+    setError(`All models rate-limited. Auto-retrying in ${retryCountdown}s…`);
+    const t = setTimeout(() => {
+      if (retryCountdown === 1) {
+        const fn = pendingCallRef.current;
+        pendingCallRef.current = null;
+        setRetryCountdown(0);
+        if (fn) fn();
+      } else {
+        setRetryCountdown(c => c - 1);
+      }
+    }, 1000);
+    return () => clearTimeout(t);
+  }, [retryCountdown]);
 
   /* auto-resize textarea */
   const resizeTextarea = useCallback(() => {
@@ -266,47 +284,73 @@ export default function QABuddyPanel() {
     setLoading(true);
     setError('');
     setIsRateLimit(false);
+    setRetryCountdown(0);
     if (textareaRef.current) textareaRef.current.style.height = 'auto';
 
     const imageAtt = userMsg.attachments.find(a => a.type === 'image');
     const fileCtx  = buildFileContext(userMsg.attachments);
     const fullText = text + fileCtx;
 
-    // History: last 8 messages (no image data in history to save tokens)
-    const history = messages.slice(-8).map(m => ({
+    // History: last 4 messages (no image data to save tokens)
+    const history = messages.slice(-4).map(m => ({
       role: m.role,
       content: m.role === 'user'
         ? (m.text + buildFileContext(m.attachments || []))
         : m.content,
     }));
 
-    try {
+    const doCall = async () => {
+      setLoading(true);
       let response;
-      if (imageAtt) {
-        response = await callVision(apiKey, fullText, imageAtt, history);
-      } else {
-        response = await callText(apiKey, fullText, history);
-      }
-
-      if (!response.success) {
-        setError(response.error);
-        setIsRateLimit(!!response.isRateLimit);
+      try {
+        response = imageAtt
+          ? await callVision(apiKey, fullText, imageAtt, history)
+          : await callText(apiKey, fullText, history);
+      } catch (e) {
+        setError(`Network error: ${e.message}`);
         setLoading(false);
         return;
       }
 
+      if (!response.success) {
+        if (response.isRateLimit) {
+          const secs = response.retryAfterSeconds || 30;
+          pendingCallRef.current = doCall;
+          setRetryCountdown(secs);
+          setIsRateLimit(true);
+          // error message is set by the countdown useEffect
+        } else {
+          setError(response.error);
+          setIsRateLimit(false);
+        }
+        setLoading(false);
+        return;
+      }
+
+      pendingCallRef.current = null;
+      setRetryCountdown(0);
+      setIsRateLimit(false);
+      setError('');
       setMessages(prev => [...prev, {
         id:        genId(),
         role:      'assistant',
         content:   response.content,
         timestamp: new Date(),
       }]);
-    } catch (err) {
-      setError(`Request failed: ${err.message}`);
-    }
+      setLoading(false);
+    };
 
-    setLoading(false);
+    pendingCallRef.current = doCall;
+    await doCall();
   }, [input, attachments, loading, apiKey, messages, buildFileContext]);
+
+  const manualRetry = useCallback(() => {
+    setRetryCountdown(0);
+    setError('');
+    const fn = pendingCallRef.current;
+    pendingCallRef.current = null;
+    if (fn) fn();
+  }, []);
 
   const handleKeyDown = useCallback((e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -319,8 +363,10 @@ export default function QABuddyPanel() {
     setMessages([]);
     setError('');
     setIsRateLimit(false);
+    setRetryCountdown(0);
     setAttachments([]);
     setInput('');
+    pendingCallRef.current = null;
   }, []);
 
   /* ── Render ─────────────────────────────────────────────── */
@@ -347,15 +393,18 @@ export default function QABuddyPanel() {
 
       {/* Error bar */}
       {error && (
-        <div className="qab-error-bar">
-          <span>⚠️ {error}</span>
+        <div className={`qab-error-bar${isRateLimit ? ' qab-error-ratelimit' : ''}`}>
+          <span>{isRateLimit ? '⏱' : '⚠️'} {error}</span>
           <div className="qab-error-actions">
-            {isRateLimit && (
-              <button className="qab-retry-btn" onClick={() => handleSend()} disabled={loading}>
-                ↺ Retry
+            {isRateLimit && retryCountdown > 0 && (
+              <span className="qab-countdown">{retryCountdown}s</span>
+            )}
+            {isRateLimit && retryCountdown === 0 && !loading && (
+              <button className="qab-retry-btn" onClick={manualRetry}>
+                ↺ Retry Now
               </button>
             )}
-            <button className="qab-error-close" onClick={() => { setError(''); setIsRateLimit(false); }}>✕</button>
+            <button className="qab-error-close" onClick={() => { setError(''); setIsRateLimit(false); setRetryCountdown(0); pendingCallRef.current = null; }}>✕</button>
           </div>
         </div>
       )}
@@ -530,28 +579,29 @@ export default function QABuddyPanel() {
 
 /* ── GROQ API calls ─────────────────────────────────────── */
 async function callText(apiKey, userText, history) {
-  const messages = [
+  const msgs = [
     { role: 'system', content: SYSTEM_PROMPT },
     ...history,
     { role: 'user', content: userText },
   ];
 
-  for (const model of [TEXT_MODEL, FALLBACK_MODEL]) {
+  let lastRetrySecs = 0;
+
+  for (const model of TEXT_CHAIN) {
     try {
       const res = await fetch(`${BASE_URL}/chat/completions`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ model, messages, temperature: 0.7, max_tokens: 2500 }),
+        body: JSON.stringify({ model: model.id, messages: msgs, temperature: 0.7, max_tokens: model.maxOut }),
       });
 
       if (!res.ok) {
-        const err = await res.text();
+        const errText = await res.text();
         if (res.status === 429) {
-          const m = err.match(/try again in ([\dhms.\s]+?)(?:\.|Please|$)/i);
-          const wait = m ? ` Retry after: ${m[1].trim()}.` : '';
-          return { success: false, isRateLimit: true, error: `Rate limited.${wait} Please wait and retry.` };
+          lastRetrySecs = parseRetrySeconds(errText);
+          continue; // try next model
         }
-        if (res.status === 400 && err.includes('model_decommissioned')) continue;
+        if (res.status === 400 && errText.includes('model_decommissioned')) continue;
         return { success: false, error: `API error ${res.status}` };
       }
 
@@ -561,7 +611,13 @@ async function callText(apiKey, userText, history) {
       return { success: false, error: `Network error: ${e.message}` };
     }
   }
-  return { success: false, error: 'All models unavailable. Please try again.' };
+
+  return {
+    success: false,
+    isRateLimit: true,
+    retryAfterSeconds: lastRetrySecs,
+    error: `All AI models rate-limited. Auto-retrying in ${lastRetrySecs}s…`,
+  };
 }
 
 async function callVision(apiKey, userText, imageAtt, history) {
@@ -585,7 +641,7 @@ async function callVision(apiKey, userText, imageAtt, history) {
           },
         ],
         temperature: 0.7,
-        max_tokens: 2500,
+        max_tokens: 1500,
       }),
     });
 
