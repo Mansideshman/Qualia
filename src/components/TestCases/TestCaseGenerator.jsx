@@ -4,6 +4,7 @@ import TestCaseService, { TEST_TYPES } from '../../services/testCaseService';
 import { exportTestCases } from '../../utils/testCaseExporter';
 import { extractFileContent, describeImageViaVision } from '../../utils/fileExtractor';
 import TestCaseTable from './TestCaseTable';
+import CreateDefectModal from './CreateDefectModal';
 import '../styles/TestCaseGenerator.css';
 
 const INPUT_MODES = { PRD: 'prd', ISSUE: 'issue', SCREENSHOT: 'screenshot' };
@@ -142,6 +143,7 @@ export default function TestCaseGenerator() {
   /* table state */
   const [selected, setSelected] = useState(new Set());
   const [editingTc, setEditingTc] = useState(null);
+  const [defectTarget, setDefectTarget] = useState(null);
   const [filterType, setFilterType] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -301,6 +303,12 @@ export default function TestCaseGenerator() {
   const handleSaveEdit = (updated) => {
     setTestCases(prev => prev.map(t => t.testCaseId === updated.testCaseId ? updated : t));
     setEditingTc(null);
+  };
+
+  const handleDefectCreated = (testCaseId, defectId, defectUrl) => {
+    setTestCases(prev => prev.map(t =>
+      t.testCaseId === testCaseId ? { ...t, defectId, defectUrl, status: 'Fail' } : t
+    ));
   };
 
   /* export helpers */
@@ -748,6 +756,7 @@ export default function TestCaseGenerator() {
             onToggleSelect={toggleSelect}
             onToggleAll={toggleAll}
             onEdit={setEditingTc}
+            onCreateDefect={setDefectTarget}
           />
 
           {visibleTCs.length === 0 && (
@@ -762,6 +771,18 @@ export default function TestCaseGenerator() {
           tc={editingTc}
           onSave={handleSaveEdit}
           onClose={() => setEditingTc(null)}
+        />
+      )}
+
+      {/* ── Create Defect Modal ──────────────────────────── */}
+      {defectTarget && (
+        <CreateDefectModal
+          tc={defectTarget}
+          onClose={() => setDefectTarget(null)}
+          onDefectCreated={(tcId, defectId, defectUrl) => {
+            handleDefectCreated(tcId, defectId, defectUrl);
+            setDefectTarget(null);
+          }}
         />
       )}
     </div>

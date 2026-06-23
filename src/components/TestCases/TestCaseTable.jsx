@@ -25,7 +25,7 @@ const COLS = [
   { key: 'expected', label: 'Expected Result',  w: 180, align: 'left'   },
   { key: 'actual',   label: 'Actual Result',    w: 130, align: 'left'   },
   { key: 'remark',   label: 'Remark',           w: 120, align: 'left'   },
-  { key: 'action',   label: 'Action',           w: 55,  align: 'center' },
+  { key: 'action',   label: 'Actions',          w: 90,  align: 'center' },
 ];
 const TOTAL_W = COLS.reduce((s, c) => s + c.w, 0); // 1250px
 const TOTAL_COLS = COLS.length;                      // 9
@@ -144,7 +144,7 @@ function DetailPanel({ tc }) {
 }
 
 /* ── Main table ──────────────────────────────────────── */
-export default function TestCaseTable({ testCases, selected, onToggleSelect, onToggleAll, onEdit }) {
+export default function TestCaseTable({ testCases, selected, onToggleSelect, onToggleAll, onEdit, onCreateDefect }) {
   const [expandedIds, setExpandedIds] = useState(new Set());
   const [sortField,   setSortField]   = useState('testCaseId');
   const [sortDir,     setSortDir]     = useState('asc');
@@ -353,16 +353,46 @@ export default function TestCaseTable({ testCases, selected, onToggleSelect, onT
                       : <span style={{ color: '#cbd5e1' }}>—</span>}
                   </td>
 
-                  {/* Action */}
+                  {/* Actions */}
                   <td style={{ ...tdStyle(COLS[8]), borderBottom: '1px solid #f1f5f9', textAlign: 'center' }}>
-                    <button
-                      onClick={() => onEdit(tc)}
-                      title="Edit"
-                      style={{ background: 'none', border: 'none', cursor: 'pointer',
-                               fontSize: '0.85rem', padding: '4px 6px', borderRadius: 5 }}
-                    >
-                      ✏️
-                    </button>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
+                      <button
+                        onClick={() => onEdit(tc)}
+                        title="Edit test case"
+                        style={{ background: 'none', border: 'none', cursor: 'pointer',
+                                 fontSize: '0.85rem', padding: '4px 5px', borderRadius: 5 }}
+                      >
+                        ✏️
+                      </button>
+                      <button
+                        onClick={() => onCreateDefect(tc)}
+                        title={tc.status === 'Fail' ? 'Create defect ticket' : 'Create defect (test case status: ' + (tc.status || 'Not Executed') + ')'}
+                        style={{
+                          background: 'none', border: 'none', cursor: 'pointer',
+                          fontSize: '0.85rem', padding: '4px 5px', borderRadius: 5,
+                          opacity: tc.status === 'Fail' ? 1 : 0.4,
+                          filter: tc.status === 'Fail' ? 'none' : 'grayscale(60%)',
+                        }}
+                      >
+                        🐛
+                      </button>
+                    </div>
+                    {tc.defectId && (
+                      <a
+                        href={tc.defectUrl || '#'}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        title={`Defect: ${tc.defectId}`}
+                        style={{
+                          display: 'block', marginTop: 3, fontSize: '0.65rem', fontWeight: 700,
+                          color: '#dc2626', background: '#fef2f2', border: '1px solid #fecaca',
+                          borderRadius: 4, padding: '1px 5px', textDecoration: 'none',
+                          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                        }}
+                      >
+                        {tc.defectId}
+                      </a>
+                    )}
                   </td>
                 </tr>
 
