@@ -1,0 +1,785 @@
+/* ============================================================
+   TestCodeGen.css — Playwright / Cypress / Selenium Code Generator
+   ============================================================ */
+
+/* ── Panel shell ──────────────────────────────────────────── */
+.tcg2-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 28px 32px;
+  max-width: 1100px;
+  margin: 0 auto;
+  min-height: 100%;
+  color: var(--color-text, #1e293b);
+}
+
+/* ── Header ──────────────────────────────────────────────── */
+.tcg2-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.tcg2-header-left { display: flex; align-items: flex-start; gap: 14px; }
+
+.tcg2-header-icon { font-size: 2.4rem; line-height: 1; flex-shrink: 0; }
+
+.tcg2-title {
+  margin: 0 0 4px;
+  font-size: 1.7rem;
+  font-weight: 700;
+  color: var(--color-text, #1e293b);
+  letter-spacing: -0.02em;
+}
+
+.tcg2-subtitle {
+  margin: 0;
+  font-size: 0.88rem;
+  color: var(--color-text-muted, #64748b);
+  line-height: 1.4;
+}
+
+.tcg2-header-badges { display: flex; gap: 8px; flex-shrink: 0; margin-top: 4px; }
+
+.tcg2-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.tcg2-badge-hot  { background: linear-gradient(135deg, #7c3aed, #4f46e5); color: #fff; }
+.tcg2-badge-pom  { background: linear-gradient(135deg, #0ea5e9, #06b6d4); color: #fff; }
+
+/* ── Framework bar ────────────────────────────────────────── */
+.tcg2-fw-bar {
+  display: flex;
+  gap: 10px;
+  padding: 4px;
+  background: var(--color-surface, #f1f5f9);
+  border-radius: 14px;
+  width: fit-content;
+}
+
+.tcg2-fw-btn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 20px;
+  border: 2px solid transparent;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--color-text-muted, #64748b);
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tcg2-fw-btn:hover { background: var(--color-bg, #fff); color: var(--color-text, #1e293b); }
+
+.tcg2-fw-btn.active {
+  background: var(--color-bg, #fff);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.tcg2-fw-icon { font-size: 1.1rem; }
+
+/* ── Input card ───────────────────────────────────────────── */
+.tcg2-input-card {
+  background: var(--color-surface, #f8fafc);
+  border: 1px solid var(--color-border, #e2e8f0);
+  border-radius: 16px;
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ── Mode toggle ──────────────────────────────────────────── */
+.tcg2-mode-toggle {
+  display: flex;
+  gap: 8px;
+  width: fit-content;
+}
+
+.tcg2-mode-btn {
+  padding: 7px 18px;
+  border: 1px solid var(--color-border, #e2e8f0);
+  border-radius: 8px;
+  background: var(--color-bg, #fff);
+  color: var(--color-text-muted, #64748b);
+  font-size: 0.84rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tcg2-mode-btn.active {
+  border-color: #6366f1;
+  background: rgba(99, 102, 241, 0.08);
+  color: #6366f1;
+}
+
+.tcg2-mode-btn:hover:not(.active) { border-color: #94a3b8; color: var(--color-text, #1e293b); }
+
+/* ── Flow textarea ────────────────────────────────────────── */
+.tcg2-input-label {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted, #64748b);
+  margin-bottom: 6px;
+}
+
+.tcg2-flow-textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--color-border, #e2e8f0);
+  border-radius: 10px;
+  background: var(--color-bg, #fff);
+  color: var(--color-text, #1e293b);
+  font-size: 0.88rem;
+  line-height: 1.6;
+  resize: vertical;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.tcg2-flow-textarea:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+/* ── Screenshot drop zone ─────────────────────────────────── */
+.tcg2-shot-drop {
+  border: 2px dashed var(--color-border, #cbd5e1);
+  border-radius: 12px;
+  min-height: 160px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: var(--color-bg, #fff);
+  overflow: hidden;
+}
+
+.tcg2-shot-drop:hover,
+.tcg2-shot-drop.drag-over { border-color: #6366f1; background: rgba(99,102,241,0.04); }
+.tcg2-shot-drop.has-file  { border-style: solid; border-color: #22c55e; cursor: default; }
+
+.tcg2-shot-drop-inner { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 24px; text-align: center; }
+.tcg2-shot-icon       { font-size: 2rem; }
+.tcg2-shot-drop-title { font-size: 0.92rem; font-weight: 600; color: var(--color-text, #1e293b); }
+.tcg2-shot-drop-sub   { font-size: 0.8rem; color: var(--color-text-muted, #94a3b8); }
+.tcg2-shot-drop-btn   { margin-top: 6px; padding: 6px 18px; border-radius: 8px; background: #6366f1; color: #fff; font-size: 0.8rem; font-weight: 600; pointer-events: none; }
+
+.tcg2-shot-preview {
+  position: relative;
+  width: 100%;
+  max-height: 240px;
+  overflow: hidden;
+}
+
+.tcg2-shot-img {
+  width: 100%;
+  max-height: 240px;
+  object-fit: contain;
+  display: block;
+}
+
+.tcg2-shot-overlay {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  background: linear-gradient(transparent, rgba(0,0,0,0.7));
+  padding: 12px 16px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.tcg2-shot-name { font-size: 0.78rem; color: #fff; font-weight: 600; }
+
+.tcg2-shot-remove {
+  padding: 4px 10px;
+  border: 1px solid rgba(255,255,255,0.4);
+  border-radius: 6px;
+  background: rgba(0,0,0,0.3);
+  color: #fff;
+  font-size: 0.75rem;
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+}
+
+/* ── Options row ──────────────────────────────────────────── */
+.tcg2-options-row {
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+
+.tcg2-opt-group   { display: flex; flex-direction: column; gap: 5px; }
+.tcg2-opt-grow    { flex: 1; min-width: 200px; }
+.tcg2-opt-narrow  { min-width: 140px; }
+
+.tcg2-opt-label {
+  font-size: 0.76rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted, #64748b);
+}
+
+.tcg2-opt-input,
+.tcg2-opt-select {
+  padding: 9px 12px;
+  border: 1px solid var(--color-border, #e2e8f0);
+  border-radius: 8px;
+  background: var(--color-bg, #fff);
+  color: var(--color-text, #1e293b);
+  font-size: 0.88rem;
+  transition: border-color 0.2s;
+}
+
+.tcg2-opt-input:focus,
+.tcg2-opt-select:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+}
+
+/* ── Feature toggles ──────────────────────────────────────── */
+.tcg2-toggles {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.tcg2-toggle {
+  padding: 6px 14px;
+  border: 1px solid var(--color-border, #e2e8f0);
+  border-radius: 20px;
+  background: var(--color-bg, #fff);
+  color: var(--color-text-muted, #64748b);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.tcg2-toggle.on {
+  border-color: #6366f1;
+  background: rgba(99,102,241,0.08);
+  color: #6366f1;
+}
+
+.tcg2-toggle:hover:not(.on) { border-color: #94a3b8; color: var(--color-text, #1e293b); }
+
+/* ── Generate button ──────────────────────────────────────── */
+.tcg2-generate-btn {
+  align-self: flex-start;
+  padding: 11px 28px;
+  border: none;
+  border-radius: 10px;
+  background: var(--fw-color, #6366f1);
+  color: #fff;
+  font-size: 0.92rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.15s;
+  letter-spacing: 0.01em;
+}
+
+.tcg2-generate-btn:hover:not(:disabled) { opacity: 0.88; transform: translateY(-1px); }
+.tcg2-generate-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ── Error ────────────────────────────────────────────────── */
+.tcg2-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: #fef2f2;
+  border: 1px solid #fca5a5;
+  border-radius: 8px;
+  color: #dc2626;
+  font-size: 0.85rem;
+}
+
+/* ── B.L.A.S.T. tracker ───────────────────────────────────── */
+.tcg2-blast {
+  background: var(--color-surface, #f8fafc);
+  border: 1px solid var(--color-border, #e2e8f0);
+  border-radius: 16px;
+  padding: 18px 22px;
+}
+
+.tcg2-blast-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text, #1e293b);
+  margin-bottom: 14px;
+}
+
+.tcg2-blast-spin {
+  display: inline-block;
+  width: 15px; height: 15px;
+  border: 2px solid rgba(99,102,241,0.2);
+  border-top-color: #6366f1;
+  border-radius: 50%;
+  animation: tcg2-spin 0.8s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes tcg2-spin { to { transform: rotate(360deg); } }
+
+.tcg2-blast-phases { display: flex; gap: 8px; }
+
+.tcg2-blast-phase {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 10px 6px;
+  border-radius: 10px;
+  background: var(--color-bg, #fff);
+  border: 2px solid var(--color-border, #e2e8f0);
+  text-align: center;
+  transition: all 0.3s;
+}
+
+.tcg2-blast-phase.done  { border-color: #22c55e; background: rgba(34,197,94,0.07); }
+.tcg2-blast-phase.active { border-color: #6366f1; background: rgba(99,102,241,0.07); box-shadow: 0 0 0 3px rgba(99,102,241,0.12); }
+
+.tcg2-blast-letter { font-size: 1.4rem; font-weight: 900; color: #94a3b8; }
+.tcg2-blast-phase.done   .tcg2-blast-letter { color: #22c55e; }
+.tcg2-blast-phase.active .tcg2-blast-letter { color: #6366f1; }
+
+.tcg2-blast-phase-name {
+  font-size: 0.68rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.04em; color: var(--color-text-muted, #64748b);
+}
+
+.tcg2-blast-phase-desc {
+  font-size: 0.68rem; color: #6366f1; font-style: italic; margin-top: 1px;
+}
+
+/* ── UI Description box ───────────────────────────────────── */
+.tcg2-ui-desc {
+  border: 1px solid var(--color-border, #e2e8f0);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.tcg2-ui-desc-header {
+  padding: 10px 16px;
+  background: var(--color-surface, #f8fafc);
+  font-size: 0.82rem;
+  font-weight: 700;
+  border-bottom: 1px solid var(--color-border, #e2e8f0);
+}
+
+.tcg2-ui-desc-text {
+  margin: 0;
+  padding: 14px 16px;
+  background: var(--color-bg, #fff);
+  font-size: 0.8rem;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  color: var(--color-text, #475569);
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+/* ── Results ──────────────────────────────────────────────── */
+.tcg2-results {
+  border: 1px solid var(--color-border, #e2e8f0);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.tcg2-results-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  background: var(--color-surface, #f8fafc);
+  border-bottom: 1px solid var(--color-border, #e2e8f0);
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.tcg2-results-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--color-text, #1e293b);
+}
+
+.tcg2-download-all {
+  padding: 7px 16px;
+  border: 1px solid var(--color-border, #e2e8f0);
+  border-radius: 8px;
+  background: var(--color-bg, #fff);
+  color: var(--color-text, #1e293b);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.tcg2-download-all:hover { border-color: #6366f1; color: #6366f1; }
+
+/* ── File tabs ────────────────────────────────────────────── */
+.tcg2-file-tabs {
+  display: flex;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--color-border, #e2e8f0);
+  background: var(--color-bg, #fff);
+  scrollbar-width: none;
+}
+
+.tcg2-file-tabs::-webkit-scrollbar { display: none; }
+
+.tcg2-file-tab {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 18px;
+  border: none;
+  border-bottom: 3px solid transparent;
+  background: none;
+  color: var(--color-text-muted, #64748b);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.tcg2-file-tab:hover { color: var(--color-text, #1e293b); }
+.tcg2-file-tab.active { color: #6366f1; border-bottom-color: #6366f1; }
+
+.tcg2-file-tab-icon { font-size: 1rem; }
+.tcg2-file-tab-name { font-family: monospace; font-size: 0.8rem; }
+
+/* ── Code viewer ──────────────────────────────────────────── */
+.tcg2-code-viewer { display: flex; flex-direction: column; }
+
+.tcg2-code-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  background: #1e293b;
+  border-bottom: 1px solid #334155;
+}
+
+.tcg2-code-bar-left { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; }
+
+.tcg2-lang-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.tcg2-code-filename {
+  font-size: 0.8rem;
+  font-family: monospace;
+  color: #94a3b8;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tcg2-lang-chip {
+  padding: 1px 7px;
+  border-radius: 4px;
+  background: rgba(255,255,255,0.08);
+  color: #64748b;
+  font-size: 0.7rem;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.tcg2-copy-btn,
+.tcg2-dl-btn {
+  padding: 4px 12px;
+  border: 1px solid #334155;
+  border-radius: 6px;
+  background: transparent;
+  color: #94a3b8;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.tcg2-copy-btn:hover, .tcg2-dl-btn:hover { background: #334155; color: #fff; }
+
+.tcg2-code-block {
+  margin: 0;
+  padding: 18px;
+  background: #0f172a;
+  color: #e2e8f0;
+  font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+  font-size: 0.78rem;
+  line-height: 1.65;
+  overflow-x: auto;
+  max-height: 540px;
+  overflow-y: auto;
+  tab-size: 2;
+}
+
+/* ── Selector Lab ─────────────────────────────────────────── */
+.tcg2-lab {
+  border: 1px solid var(--color-border, #e2e8f0);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.tcg2-lab-header {
+  padding: 16px 22px 12px;
+  background: linear-gradient(135deg, rgba(99,102,241,0.04), rgba(14,165,233,0.04));
+  border-bottom: 1px solid var(--color-border, #e2e8f0);
+}
+
+.tcg2-lab-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-text, #1e293b);
+  margin-bottom: 4px;
+}
+
+.tcg2-lab-icon { font-size: 1.1rem; }
+
+.tcg2-lab-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 20px;
+  background: rgba(99,102,241,0.1);
+  color: #6366f1;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.tcg2-lab-sub {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--color-text-muted, #64748b);
+}
+
+.tcg2-lab-body {
+  padding: 18px 22px;
+  background: var(--color-bg, #fff);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.tcg2-lab-inputs {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.tcg2-lab-group { flex: 1; display: flex; flex-direction: column; gap: 5px; }
+
+.tcg2-lab-or {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--color-text-muted, #94a3b8);
+  align-self: center;
+  padding-top: 22px;
+}
+
+.tcg2-lab-textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border, #e2e8f0);
+  border-radius: 8px;
+  background: var(--color-surface, #f8fafc);
+  color: var(--color-text, #1e293b);
+  font-family: 'Cascadia Code', 'Fira Code', monospace;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  resize: vertical;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.tcg2-lab-textarea:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+}
+
+.tcg2-lab-btn {
+  align-self: flex-start;
+  padding: 9px 22px;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #6366f1, #0ea5e9);
+  color: #fff;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.tcg2-lab-btn:hover:not(:disabled) { opacity: 0.88; }
+.tcg2-lab-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ── Lab results ──────────────────────────────────────────── */
+.tcg2-lab-results {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border-top: 1px solid var(--color-border, #e2e8f0);
+  padding-top: 14px;
+}
+
+.tcg2-lab-section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.tcg2-lab-section-label {
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #6366f1;
+  padding: 3px 8px;
+  background: rgba(99,102,241,0.07);
+  border-radius: 4px;
+  width: fit-content;
+}
+
+.tcg2-lab-section-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  background: var(--color-surface, #f8fafc);
+  border: 1px solid var(--color-border, #e2e8f0);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.tcg2-lab-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 12px;
+  gap: 8px;
+  border-bottom: 1px solid var(--color-border, #f1f5f9);
+}
+
+.tcg2-lab-line:last-child { border-bottom: none; }
+
+.tcg2-lab-line code {
+  font-family: 'Cascadia Code', 'Fira Code', monospace;
+  font-size: 0.78rem;
+  color: var(--color-text, #1e293b);
+  flex: 1;
+}
+
+.tcg2-lab-copy {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.85rem;
+  padding: 2px 4px;
+  opacity: 0.5;
+  transition: opacity 0.15s;
+  flex-shrink: 0;
+}
+
+.tcg2-lab-copy:hover { opacity: 1; }
+
+/* ── Dark mode ────────────────────────────────────────────── */
+[data-theme='dark'] .tcg2-panel { color: #e2e8f0; }
+[data-theme='dark'] .tcg2-title { color: #f1f5f9; }
+[data-theme='dark'] .tcg2-subtitle { color: #94a3b8; }
+[data-theme='dark'] .tcg2-fw-bar { background: #1e293b; }
+[data-theme='dark'] .tcg2-fw-btn { color: #64748b; }
+[data-theme='dark'] .tcg2-fw-btn:hover { background: #0f172a; color: #f1f5f9; }
+[data-theme='dark'] .tcg2-fw-btn.active { background: #0f172a; }
+[data-theme='dark'] .tcg2-input-card { background: #1e293b; border-color: #334155; }
+[data-theme='dark'] .tcg2-mode-btn { background: #0f172a; border-color: #334155; color: #64748b; }
+[data-theme='dark'] .tcg2-mode-btn.active { background: rgba(99,102,241,0.15); color: #a5b4fc; }
+[data-theme='dark'] .tcg2-flow-textarea { background: #0f172a; border-color: #334155; color: #e2e8f0; }
+[data-theme='dark'] .tcg2-shot-drop { background: #0f172a; border-color: #334155; }
+[data-theme='dark'] .tcg2-shot-drop-title { color: #f1f5f9; }
+[data-theme='dark'] .tcg2-opt-input,
+[data-theme='dark'] .tcg2-opt-select { background: #0f172a; border-color: #334155; color: #e2e8f0; }
+[data-theme='dark'] .tcg2-toggle { background: #0f172a; border-color: #334155; color: #64748b; }
+[data-theme='dark'] .tcg2-toggle.on { background: rgba(99,102,241,0.15); color: #a5b4fc; border-color: #6366f1; }
+[data-theme='dark'] .tcg2-blast { background: #1e293b; border-color: #334155; }
+[data-theme='dark'] .tcg2-blast-header { color: #f1f5f9; }
+[data-theme='dark'] .tcg2-blast-phase { background: #0f172a; border-color: #334155; }
+[data-theme='dark'] .tcg2-ui-desc { border-color: #334155; }
+[data-theme='dark'] .tcg2-ui-desc-header { background: #1e293b; border-color: #334155; color: #f1f5f9; }
+[data-theme='dark'] .tcg2-ui-desc-text { background: #0f172a; color: #94a3b8; }
+[data-theme='dark'] .tcg2-results { border-color: #334155; }
+[data-theme='dark'] .tcg2-results-header { background: #1e293b; border-color: #334155; }
+[data-theme='dark'] .tcg2-results-title { color: #f1f5f9; }
+[data-theme='dark'] .tcg2-download-all { background: #0f172a; border-color: #334155; color: #e2e8f0; }
+[data-theme='dark'] .tcg2-file-tabs { background: #0f172a; border-color: #334155; }
+[data-theme='dark'] .tcg2-file-tab { color: #64748b; }
+[data-theme='dark'] .tcg2-file-tab:hover { color: #f1f5f9; }
+[data-theme='dark'] .tcg2-file-tab.active { color: #a5b4fc; border-bottom-color: #6366f1; }
+[data-theme='dark'] .tcg2-lab { border-color: #334155; }
+[data-theme='dark'] .tcg2-lab-header { background: rgba(99,102,241,0.08); border-color: #334155; }
+[data-theme='dark'] .tcg2-lab-title { color: #f1f5f9; }
+[data-theme='dark'] .tcg2-lab-sub { color: #94a3b8; }
+[data-theme='dark'] .tcg2-lab-body { background: #0f172a; }
+[data-theme='dark'] .tcg2-lab-textarea { background: #1e293b; border-color: #334155; color: #e2e8f0; }
+[data-theme='dark'] .tcg2-lab-section-body { background: #1e293b; border-color: #334155; }
+[data-theme='dark'] .tcg2-lab-line { border-color: #1e293b; }
+[data-theme='dark'] .tcg2-lab-line code { color: #e2e8f0; }
+
+/* ── Responsive ───────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .tcg2-panel { padding: 16px; gap: 14px; }
+  .tcg2-header { flex-direction: column; }
+  .tcg2-title { font-size: 1.4rem; }
+  .tcg2-fw-bar { flex-wrap: wrap; width: 100%; }
+  .tcg2-fw-btn { flex: 1; justify-content: center; }
+  .tcg2-options-row { flex-direction: column; }
+  .tcg2-opt-grow, .tcg2-opt-narrow { width: 100%; }
+  .tcg2-blast-phases { flex-wrap: wrap; }
+  .tcg2-blast-phase { min-width: calc(33% - 8px); }
+  .tcg2-lab-inputs { flex-direction: column; }
+  .tcg2-lab-or { padding-top: 0; }
+  .tcg2-generate-btn { width: 100%; text-align: center; }
+}

@@ -13,6 +13,8 @@ const VALID_GROQ_MODELS = [
   'gemma2-9b-it',
 ];
 
+const VISION_MODEL = 'meta-llama/llama-4-scout-17b-16e-instruct';
+
 /* Ordered fallback chain — confirmed-active GROQ production models only.
  * maxOut = safe output-token ceiling that stays within each model's TPM limit
  * (TPM = input + output; prompt ~700 tokens; leave headroom)
@@ -94,6 +96,57 @@ class TestCaseService {
     this.apiKey = apiKey;
     this.model = VALID_GROQ_MODELS.includes(model) ? model : 'llama-3.3-70b-versatile';
     this.baseUrl = 'https://api.groq.com/openai/v1';
+  }
+
+  async analyzeScreenshot(base64Image, mimeType = 'image/png') {
+    const prompt = `You are a senior QA engineer. Analyze this UI screenshot and extract all testable requirements.
+
+Describe:
+1. Every visible UI element (buttons, forms, inputs, tables, navigation, icons, labels)
+2. Possible user interactions and workflows
+3. Visible data fields and their expected formats/constraints
+4. Any visible states, validations, error messages, or conditions
+5. Page/screen purpose and business functionality
+
+Write a clear, structured requirements description suitable for generating comprehensive test cases. Be specific and thorough.`;
+
+    try {
+      const response = await fetch(`${this.baseUrl}/chat/completions`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${this.apiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: VISION_MODEL,
+          messages: [
+            {
+              role: 'user',
+              content: [
+                { type: 'text', text: prompt },
+                {
+                  type: 'image_url',
+                  image_url: { url: `data:${mimeType};base64,${base64Image}` },
+                },
+              ],
+            },
+          ],
+          temperature: 0.3,
+          max_tokens: 1200,
+        }),
+      });
+
+      if (!response.ok) {
+        const errText = await response.text();
+        return { success: false, error: `Vision API error ${response.status}: ${errText.substring(0, 300)}` };
+      }
+
+      const data = await response.json();
+      const description = data.choices[0].message.content;
+      return { success: true, description };
+    } catch (err) {
+      return { success: false, error: `Screenshot analysis failed: ${err.message}` };
+    }
   }
 
   async generateTestCases(input) {

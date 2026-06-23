@@ -1,11 +1,11 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import { useConfig } from '../../context/ConfigContext';
 import TestCaseService, { TEST_TYPES } from '../../services/testCaseService';
 import { exportTestCases } from '../../utils/testCaseExporter';
 import TestCaseTable from './TestCaseTable';
 import '../styles/TestCaseGenerator.css';
 
-const INPUT_MODES = { PRD: 'prd', ISSUE: 'issue' };
+const INPUT_MODES = { PRD: 'prd', ISSUE: 'issue', SCREENSHOT: 'screenshot' };
 
 const EXPORT_ACTIONS = [
   { tool: 'generic',  format: 'excel',    label: 'Excel (.xlsx)',  icon: '📊', hint: '6 sheets: Test Cases · Field Dictionary · Lookup Lists · JIRA · XRay · YouTrack' },
@@ -118,6 +118,14 @@ export default function TestCaseGenerator() {
   const [selectedTypes, setSelectedTypes] = useState(new Set(['functional', 'negative', 'boundary']));
   const [count, setCount] = useState(10);
 
+  /* screenshot state */
+  const [screenshotFile, setScreenshotFile] = useState(null);
+  const [screenshotPreview, setScreenshotPreview] = useState('');
+  const [screenshotAnalysis, setScreenshotAnalysis] = useState('');
+  const [isDragOver, setIsDragOver] = useState(false);
+  const [analyzingShot, setAnalyzingShot] = useState(false);
+  const fileInputRef = useRef(null);
+
   /* generation state */
   const [loading, setLoading] = useState(false);
   const [stageIdx, setStageIdx] = useState(0);
@@ -142,6 +150,39 @@ export default function TestCaseGenerator() {
     });
   };
 
+  /* screenshot helpers */
+  const loadScreenshotFile = (file) => {
+    if (!file || !file.type.startsWith('image/')) return;
+    setScreenshotFile(file);
+    setScreenshotAnalysis('');
+    const reader = new FileReader();
+    reader.onload = (e) => setScreenshotPreview(e.target.result);
+    reader.readAsDataURL(file);
+  };
+
+  const handleDropZoneClick = () => fileInputRef.current?.click();
+
+  const handleFileInputChange = (e) => {
+    const file = e.target.files?.[0];
+    if (file) loadScreenshotFile(file);
+    e.target.value = '';
+  };
+
+  const handleDragOver = (e) => { e.preventDefault(); setIsDragOver(true); };
+  const handleDragLeave = () => setIsDragOver(false);
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) loadScreenshotFile(file);
+  };
+
+  const clearScreenshot = () => {
+    setScreenshotFile(null);
+    setScreenshotPreview('');
+    setScreenshotAnalysis('');
+  };
+
   /* generate */
   const handleGenerate = useCallback(async () => {
     if (!config?.groq?.apiKey) {
@@ -156,6 +197,10 @@ export default function TestCaseGenerator() {
       setError('Enter an issue / tracker key (e.g. PROJ-123, TW-456, LINEAR-789).');
       return;
     }
+    if (inputMode === INPUT_MODES.SCREENSHOT && !screenshotFile) {
+      setError('Upload a screenshot first.');
+      return;
+    }
 
     setError('');
     setErrorMeta(null);
@@ -165,16 +210,34 @@ export default function TestCaseGenerator() {
     setTestCases([]);
     setSelected(new Set());
 
+    const service = new TestCaseService(config.groq.apiKey, config.groq.model);
+
+    /* Screenshot mode: analyze image first, then use extracted requirements */
+    let derivedRequirements = requirements;
+    if (inputMode === INPUT_MODES.SCREENSHOT) {
+      setAnalyzingShot(true);
+      const base64 = screenshotPreview.split(',')[1];
+      const mimeType = screenshotFile.type || 'image/png';
+      const visionResult = await service.analyzeScreenshot(base64, mimeType);
+      setAnalyzingShot(false);
+      if (!visionResult.success) {
+        setError(visionResult.error || 'Failed to analyze screenshot.');
+        setLoading(false);
+        return;
+      }
+      derivedRequirements = visionResult.description;
+      setScreenshotAnalysis(visionResult.description);
+    }
+
     const stageTimer = setInterval(() => {
       setStageIdx(i => (i + 1 < BLAST_PHASES.length ? i + 1 : i));
     }, 1800);
 
     try {
-      const service = new TestCaseService(config.groq.apiKey, config.groq.model);
       const result = await service.generateTestCases({
-        productName: inputMode === INPUT_MODES.PRD ? productName : issueKey,
+        productName: inputMode === INPUT_MODES.PRD ? productName : (inputMode === INPUT_MODES.SCREENSHOT ? (productName || 'UI Feature') : issueKey),
         module: module || 'Core Functionality',
-        requirements: inputMode === INPUT_MODES.PRD ? requirements : `Tracker Issue: ${issueKey}`,
+        requirements: inputMode === INPUT_MODES.ISSUE ? `Tracker Issue: ${issueKey}` : derivedRequirements,
         testTypes: Array.from(selectedTypes),
         count,
         linkedStoryKey: linkedKey,
@@ -196,7 +259,7 @@ export default function TestCaseGenerator() {
       clearInterval(stageTimer);
       setLoading(false);
     }
-  }, [config, inputMode, productName, module, requirements, issueKey, linkedKey, sprint, assignee, environment, selectedTypes, count]);
+  }, [config, inputMode, productName, module, requirements, issueKey, linkedKey, sprint, assignee, environment, selectedTypes, count, screenshotFile, screenshotPreview]);
 
   /* selection helpers */
   const toggleSelect = (id) =>
@@ -282,6 +345,16 @@ export default function TestCaseGenerator() {
               <small>Jira · YouTrack · Linear · GitHub</small>
             </div>
           </button>
+          <button
+            className={`tcg-mode-btn ${inputMode === INPUT_MODES.SCREENSHOT ? 'active' : ''}`}
+            onClick={() => setInputMode(INPUT_MODES.SCREENSHOT)}
+          >
+            <span className="tcg-mode-icon">🖼️</span>
+            <div>
+              <strong>Screenshot / UI</strong>
+              <small>AI vision — attach any screen</small>
+            </div>
+          </button>
         </div>
 
         {/* Core inputs */}
@@ -319,6 +392,53 @@ export default function TestCaseGenerator() {
                 placeholder="As a user, I want to log in with my email and password so that I can access my account.&#10;&#10;Acceptance Criteria:&#10;- Valid credentials redirect to dashboard&#10;- Invalid credentials show error message&#10;- Account locks after 5 failed attempts"
                 rows={7}
               />
+            </div>
+          ) : inputMode === INPUT_MODES.SCREENSHOT ? (
+            <div className="tcg-field">
+              <label>
+                Screenshot
+                <span className="tcg-label-hint">(AI will extract requirements from your UI screenshot)</span>
+              </label>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                style={{ display: 'none' }}
+                onChange={handleFileInputChange}
+              />
+              {!screenshotPreview ? (
+                <div
+                  className={`tcg-drop-zone ${isDragOver ? 'drag-over' : ''}`}
+                  onClick={handleDropZoneClick}
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
+                >
+                  <span className="tcg-drop-icon">🖼️</span>
+                  <p className="tcg-drop-title">Drop a screenshot here or click to upload</p>
+                  <p className="tcg-drop-hint">PNG · JPG · WEBP · GIF — any UI screenshot works</p>
+                </div>
+              ) : (
+                <div className="tcg-screenshot-preview-box">
+                  <div className="tcg-screenshot-img-wrap">
+                    <img src={screenshotPreview} alt="Uploaded screenshot" className="tcg-screenshot-img" />
+                    <button className="tcg-screenshot-remove" onClick={clearScreenshot} title="Remove screenshot">✕</button>
+                  </div>
+                  <div className="tcg-screenshot-meta">
+                    <span className="tcg-screenshot-name">{screenshotFile?.name}</span>
+                    <button className="tcg-screenshot-change" onClick={handleDropZoneClick}>Change image</button>
+                  </div>
+                  {screenshotAnalysis && (
+                    <div className="tcg-analysis-box">
+                      <div className="tcg-analysis-header">
+                        <span>✅</span>
+                        <strong>AI Vision — Extracted Requirements</strong>
+                      </div>
+                      <p className="tcg-analysis-text">{screenshotAnalysis}</p>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           ) : (
             <div className="tcg-row two-col">
@@ -443,6 +563,12 @@ export default function TestCaseGenerator() {
 
           {loading && (
             <div className="tcg-loading-stage">
+              {analyzingShot && (
+                <div className="tcg-analyze-status">
+                  <span className="tcg-spinner tcg-spinner-blue" />
+                  <span>Analyzing screenshot with AI vision model…</span>
+                </div>
+              )}
               {/* B.L.A.S.T. phase tracker */}
               <div className="blast-phase-tracker">
                 {BLAST_PHASES.map((phase, idx) => (

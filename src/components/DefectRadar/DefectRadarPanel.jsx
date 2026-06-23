@@ -64,6 +64,8 @@ const BLAST_STAGES = [
   { letter: 'T', name: 'Trigger',    desc: 'Finalising report & tracker export' },
 ];
 
+const PANEL_MODES = { QUICK: 'quick', FULL: 'full' };
+
 const ACCEPTED_IMAGE_TYPES = ['image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/webp'];
 const MAX_FILE_SIZE_MB = 10;
 
@@ -101,7 +103,18 @@ function getFileIcon(file) {
 export default function DefectRadarPanel() {
   const { config } = useConfig();
 
-  /* ── Upload state ── */
+  /* ── Mode ── */
+  const [panelMode, setPanelMode] = useState(PANEL_MODES.QUICK);
+
+  /* ── Quick mode state ── */
+  const [quickFile,     setQuickFile]     = useState(null);
+  const [quickPreview,  setQuickPreview]  = useState('');
+  const [quickAppName,  setQuickAppName]  = useState('');
+  const [quickNote,     setQuickNote]     = useState('');
+  const [quickDragOver, setQuickDragOver] = useState(false);
+  const quickFileRef = useRef(null);
+
+  /* ── Upload state (full mode) ── */
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [isDragOver, setIsDragOver]       = useState(false);
   const fileInputRef = useRef(null);
@@ -211,6 +224,34 @@ export default function DefectRadarPanel() {
     });
   };
 
+  /* ── Quick mode file handling ──────────────────────── */
+  const loadQuickFile = (file) => {
+    if (!file) return;
+    const isImage = ACCEPTED_IMAGE_TYPES.includes(file.type);
+    if (!isImage) { setError('Please upload an image file (PNG, JPG, WebP, GIF).'); return; }
+    if (file.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
+      setError(`File exceeds ${MAX_FILE_SIZE_MB}MB limit.`); return;
+    }
+    setError('');
+    setQuickFile(file);
+    setResult(null);
+    const reader = new FileReader();
+    reader.onload = (e) => setQuickPreview(e.target.result);
+    reader.readAsDataURL(file);
+  };
+
+  const onQuickDrop = (e) => {
+    e.preventDefault();
+    setQuickDragOver(false);
+    loadQuickFile(e.dataTransfer.files?.[0]);
+  };
+
+  const clearQuickShot = () => {
+    setQuickFile(null);
+    setQuickPreview('');
+    setResult(null);
+  };
+
   /* ── Analyse ───────────────────────────────────────── */
   const handleAnalyse = async (e) => {
     e.preventDefault();
@@ -221,13 +262,45 @@ export default function DefectRadarPanel() {
 
     try {
       if (!isGroqConfigured) throw new Error('GROQ API key not configured. Go to Settings.');
+
+      const service = new DefectRadarService(config.groq.apiKey);
+      [1, 2, 3, 4].forEach(i => setTimeout(() => setStageIdx(i), i * 800));
+
+      /* ── QUICK MODE ── screenshot only ── */
+      if (panelMode === PANEL_MODES.QUICK) {
+        if (!quickFile) throw new Error('Please upload a screenshot to analyse.');
+        const dataUrl = await fileToBase64(quickFile);
+        const analysisResult = await service.analyseEvidence({
+          textDescription: {
+            whatDoing: '',
+            expected: '',
+            actual: quickNote.trim() || 'Visual evidence provided via screenshot. Please analyse all visible defects, UX issues, and anomalies.',
+            additional: '',
+          },
+          appContext: {
+            appName:     quickAppName.trim() || 'Application Under Test',
+            appType:     APP_TYPES[0],
+            appUrl:      '',
+            environment: ENVIRONMENTS[0],
+            browser:     browser,
+            os:          os,
+            userRole:    '',
+            resolution:  resolution,
+            appVersion:  '',
+            locale:      locale,
+          },
+          textFileContents:  [],
+          imageBase64List:   [{ name: quickFile.name, dataUrl }],
+        });
+        if (!analysisResult.success) throw new Error(analysisResult.error);
+        setResult(analysisResult.result);
+        return;
+      }
+
+      /* ── FULL MODE ── existing form ── */
       if (!appName.trim()) throw new Error('Please enter the application name.');
       if (!actual.trim() && uploadedFiles.length === 0)
         throw new Error('Please describe the actual problem or upload a screenshot / log file.');
-
-      const service = new DefectRadarService(config.groq.apiKey);
-
-      [1, 2, 3, 4].forEach(i => setTimeout(() => setStageIdx(i), i * 800));
 
       const imageBase64List = [];
       const textFileContents = [];
@@ -282,9 +355,104 @@ export default function DefectRadarPanel() {
         </div>
       </div>
 
+      {/* ── Mode Toggle ── */}
+      <div className="dr-mode-toggle">
+        <button
+          type="button"
+          className={`dr-mode-btn ${panelMode === PANEL_MODES.QUICK ? 'active' : ''}`}
+          onClick={() => { setPanelMode(PANEL_MODES.QUICK); setResult(null); setError(''); }}
+        >
+          <span className="dr-mode-icon">📸</span>
+          <div>
+            <strong>Quick Screenshot</strong>
+            <small>Drop a screenshot — AI detects all bugs instantly</small>
+          </div>
+        </button>
+        <button
+          type="button"
+          className={`dr-mode-btn ${panelMode === PANEL_MODES.FULL ? 'active' : ''}`}
+          onClick={() => { setPanelMode(PANEL_MODES.FULL); setResult(null); setError(''); }}
+        >
+          <span className="dr-mode-icon">📋</span>
+          <div>
+            <strong>Full Report</strong>
+            <small>Logs · HAR · detailed context · multi-file</small>
+          </div>
+        </button>
+      </div>
+
       <form onSubmit={handleAnalyse}>
 
-        {/* ── Section 01: Upload Evidence ── */}
+        {/* ── QUICK SCREENSHOT MODE ── */}
+        {panelMode === PANEL_MODES.QUICK && (
+          <div className="defect-card dr-quick-card">
+            <div className="defect-section-title">
+              <span className="defect-section-num">AI</span>
+              Screenshot Bug Analysis
+              <span className="dr-quick-badge">Vision AI</span>
+            </div>
+
+            <input
+              ref={quickFileRef}
+              type="file"
+              accept="image/*"
+              style={{ display: 'none' }}
+              onChange={(e) => { loadQuickFile(e.target.files?.[0]); e.target.value = ''; }}
+            />
+
+            {!quickPreview ? (
+              <div
+                className={`dr-quick-dropzone ${quickDragOver ? 'drag-over' : ''}`}
+                onDragOver={(e) => { e.preventDefault(); setQuickDragOver(true); }}
+                onDragLeave={() => setQuickDragOver(false)}
+                onDrop={onQuickDrop}
+                onClick={() => quickFileRef.current?.click()}
+              >
+                <div className="dr-quick-dz-icon">📸</div>
+                <p className="dr-quick-dz-title">Drop your screenshot here or click to upload</p>
+                <p className="dr-quick-dz-hint">PNG · JPG · WebP · GIF &nbsp;·&nbsp; Max {MAX_FILE_SIZE_MB}MB</p>
+                <p className="dr-quick-dz-hint">AI will automatically detect all bugs, UX issues &amp; anomalies</p>
+              </div>
+            ) : (
+              <div className="dr-quick-preview-wrap">
+                <div className="dr-quick-img-box">
+                  <img src={quickPreview} alt="Screenshot to analyse" className="dr-quick-img" />
+                  <button type="button" className="dr-quick-remove" onClick={clearQuickShot} title="Remove">✕</button>
+                </div>
+                <div className="dr-quick-img-meta">
+                  <span className="dr-quick-filename">{quickFile?.name}</span>
+                  <button type="button" className="dr-quick-change" onClick={() => quickFileRef.current?.click()}>
+                    Change image
+                  </button>
+                </div>
+              </div>
+            )}
+
+            <div className="dr-quick-optional-row">
+              <div className="dr-field dr-quick-appname">
+                <label>App / Feature Name <span style={{ fontWeight: 400, color: 'var(--gray-400,#9ca3af)' }}>(optional)</span></label>
+                <input
+                  type="text"
+                  value={quickAppName}
+                  onChange={e => setQuickAppName(e.target.value)}
+                  placeholder="e.g. Customer Portal, Checkout Page"
+                />
+              </div>
+              <div className="dr-field dr-quick-note">
+                <label>Additional Context <span style={{ fontWeight: 400, color: 'var(--gray-400,#9ca3af)' }}>(optional)</span></label>
+                <input
+                  type="text"
+                  value={quickNote}
+                  onChange={e => setQuickNote(e.target.value)}
+                  placeholder="e.g. This page broke after yesterday's release"
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── Full mode sections ── */}
+        {panelMode === PANEL_MODES.FULL && (
         <div className="defect-card">
           <div className="defect-section-title">
             <span className="defect-section-num">01</span>
@@ -353,9 +521,11 @@ export default function DefectRadarPanel() {
             </div>
           )}
         </div>
+        )}
 
-        {/* ── Section 02: Application Context ── */}
+        {panelMode === PANEL_MODES.FULL && (
         <div className="defect-card">
+          {/* Section 02: Application Context */}
           <div className="defect-section-title">
             <span className="defect-section-num">02</span>
             Application Context
@@ -422,8 +592,9 @@ export default function DefectRadarPanel() {
             </div>
           </div>
         </div>
+        )}
 
-        {/* ── Section 03: Bug Description ── */}
+        {panelMode === PANEL_MODES.FULL && (
         <div className="defect-card">
           <div className="defect-section-title">
             <span className="defect-section-num">03</span>
@@ -457,6 +628,7 @@ export default function DefectRadarPanel() {
               placeholder="e.g., Started after yesterday's deployment. Only affects users with saved payment methods. Works in Staging." />
           </div>
         </div>
+        )}
 
         {/* Errors / Warnings */}
         {error && (

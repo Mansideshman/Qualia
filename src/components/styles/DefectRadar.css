@@ -1510,4 +1510,162 @@
   .dr-blast-stages    { flex-direction: column; align-items: stretch; }
   .overview-grid      { grid-template-columns: repeat(2, 1fr); }
   .rec-grid           { grid-template-columns: 1fr; }
+  .dr-quick-optional-row { flex-direction: column; }
 }
+
+/* ══════════════════════════════════════════════════════
+   QUICK SCREENSHOT MODE
+   ══════════════════════════════════════════════════════ */
+
+/* Mode toggle row */
+.dr-mode-toggle {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.dr-mode-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  border: 2px solid var(--gray-200, #e5e7eb);
+  border-radius: 12px;
+  background: var(--gray-50, #f9fafb);
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s;
+}
+
+.dr-mode-btn strong { display: block; font-size: 0.875rem; color: var(--gray-800, #1f2937); }
+.dr-mode-btn small  { font-size: 0.75rem; color: var(--gray-500, #6b7280); }
+.dr-mode-icon       { font-size: 1.5rem; flex-shrink: 0; }
+
+.dr-mode-btn:hover  { border-color: #dc2626; }
+.dr-mode-btn.active {
+  border-color: #dc2626;
+  background: #fff1f2;
+  box-shadow: 0 0 0 3px rgba(220,38,38,0.1);
+}
+
+[data-theme="dark"] .dr-mode-btn          { background: #111827; border-color: #374151; }
+[data-theme="dark"] .dr-mode-btn strong   { color: #f3f4f6; }
+[data-theme="dark"] .dr-mode-btn.active   { background: #450a0a; border-color: #dc2626; }
+
+/* Quick card */
+.dr-quick-card { border-color: rgba(220,38,38,0.25) !important; }
+
+/* Vision AI badge */
+.dr-quick-badge {
+  margin-left: auto;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  color: white;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* Drop zone */
+.dr-quick-dropzone {
+  border: 2.5px dashed var(--gray-300, #d1d5db);
+  border-radius: 14px;
+  padding: 52px 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: var(--gray-50, #f9fafb);
+  user-select: none;
+  margin-bottom: 16px;
+}
+
+.dr-quick-dropzone:hover,
+.dr-quick-dropzone.drag-over {
+  border-color: #dc2626;
+  background: #fff1f2;
+}
+
+[data-theme="dark"] .dr-quick-dropzone            { background: #111827; border-color: #374151; }
+[data-theme="dark"] .dr-quick-dropzone:hover,
+[data-theme="dark"] .dr-quick-dropzone.drag-over  { border-color: #dc2626; background: #450a0a; }
+
+.dr-quick-dz-icon  { font-size: 3rem; line-height: 1; margin-bottom: 12px; }
+
+.dr-quick-dz-title {
+  margin: 0 0 6px;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--gray-700, #374151);
+}
+[data-theme="dark"] .dr-quick-dz-title { color: #e5e7eb; }
+
+.dr-quick-dz-hint {
+  margin: 0 0 4px;
+  font-size: 0.8rem;
+  color: var(--gray-400, #9ca3af);
+}
+
+/* Preview */
+.dr-quick-preview-wrap  { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+
+.dr-quick-img-box {
+  position: relative;
+  display: inline-flex;
+  align-self: flex-start;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid var(--gray-200, #e5e7eb);
+  max-width: 100%;
+}
+
+.dr-quick-img {
+  max-width: 100%;
+  max-height: 300px;
+  object-fit: contain;
+  display: block;
+}
+
+.dr-quick-remove {
+  position: absolute;
+  top: 8px; right: 8px;
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0,0,0,0.6);
+  color: white;
+  font-size: 0.8rem;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s;
+}
+.dr-quick-remove:hover { background: rgba(220,38,38,0.85); }
+
+.dr-quick-img-meta {
+  display: flex; align-items: center; gap: 12px;
+}
+
+.dr-quick-filename {
+  font-size: 0.8rem;
+  color: var(--gray-500, #6b7280);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1;
+}
+
+.dr-quick-change {
+  font-size: 0.78rem; font-weight: 600;
+  color: #dc2626;
+  background: none; border: none; cursor: pointer; padding: 0; white-space: nowrap;
+}
+.dr-quick-change:hover { text-decoration: underline; }
+
+/* Optional fields row */
+.dr-quick-optional-row {
+  display: flex;
+  gap: 14px;
+  margin-top: 4px;
+}
+
+.dr-quick-appname { flex: 1; }
+.dr-quick-note    { flex: 2; }

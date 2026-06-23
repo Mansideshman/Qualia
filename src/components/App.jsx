@@ -17,6 +17,9 @@ import TestCaseGenerator from './TestCases/TestCaseGenerator';
 import TestStrategyGeneratorPanel from './TestStrategy/TestStrategyGenerator';
 import TestMetricsGenerator from './TestMetrics/TestMetricsGenerator';
 import DefectRadarPanel from './DefectRadar/DefectRadarPanel';
+import APIContractForgePanel from './APIContractForge/APIContractForgePanel';
+import TestCodeGenPanel from './TestCodeGen/TestCodeGenPanel';
+import FrameworkForgePanel from './FrameworkForge/FrameworkForgePanel';
 import './App.css';
 
 /**
@@ -61,6 +64,9 @@ function AppContent() {
     if (activeTab === 'strategy')  return <TestStrategyGeneratorPanel />;
     if (activeTab === 'metrics')   return <TestMetricsGenerator />;
     if (activeTab === 'defect')    return <DefectRadarPanel />;
+    if (activeTab === 'apiforge')  return <APIContractForgePanel />;
+    if (activeTab === 'codegen')    return <TestCodeGenPanel />;
+    if (activeTab === 'framework')  return <FrameworkForgePanel />;
     return <GenerationPanel />;
   };
 

@@ -7,6 +7,9 @@ const NAV_ITEMS = [
   { id: 'strategy',   icon: '📐', label: 'Test Blueprint',      desc: 'Multi-dimension strategy'   },
   { id: 'metrics',    icon: '📊', label: 'Release Confidence',  desc: 'Metrics & reporting'        },
   { id: 'defect',     icon: '🔍', label: 'Defect Radar',        desc: 'AI bug detection'           },
+  { id: 'apiforge',   icon: '🔗', label: 'API Contract Forge',  desc: 'OpenAPI → test suite'       },
+  { id: 'codegen',    icon: '🎭', label: 'Test Code Generator', desc: 'Playwright / Cypress / Selenium' },
+  { id: 'framework',  icon: '🏗️', label: 'Framework Forge',     desc: 'Full E2E framework generator'   },
   { id: 'settings',   icon: '⚙️', label: 'Settings',            desc: 'API configuration'          },
 ];
 
