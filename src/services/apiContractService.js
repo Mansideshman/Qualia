@@ -481,17 +481,17 @@ set -euo pipefail
 COLLECTION="./postman-collection.json"
 ENV=\${1:-"qa"}
 ENV_FILE="./env/\${ENV}.json"
-TIMESTAMP=\$(date +%Y%m%d-%H%M%S)
+TIMESTAMP=$(date +%Y%m%d-%H%M%S)
 REPORT_DIR="./reports/\${TIMESTAMP}"
 
-mkdir -p "\$REPORT_DIR"
+mkdir -p "$REPORT_DIR"
 
 echo "========================================"
 echo " Newman Runner — ${title}"
 echo "========================================"
-echo " Collection : \$COLLECTION"
-echo " Environment: \$ENV"
-echo " Reports    : \$REPORT_DIR"
+echo " Collection : $COLLECTION"
+echo " Environment: $ENV"
+echo " Reports    : $REPORT_DIR"
 echo "========================================"
 
 # Check newman is installed
@@ -501,27 +501,27 @@ if ! command -v newman &> /dev/null; then
 fi
 
 # Run tests
-newman run "\$COLLECTION" \\
-  \${ENV_FILE:+--environment "\$ENV_FILE"} \\
+newman run "$COLLECTION" \\
+  \${ENV_FILE:+--environment "$ENV_FILE"} \\
   --reporters cli,htmlextra,json \\
-  --reporter-htmlextra-export "\$REPORT_DIR/report.html" \\
+  --reporter-htmlextra-export "$REPORT_DIR/report.html" \\
   --reporter-htmlextra-title "${title} Test Report" \\
-  --reporter-json-export "\$REPORT_DIR/results.json" \\
+  --reporter-json-export "$REPORT_DIR/results.json" \\
   --timeout-request 15000 \\
   --delay-request 300 \\
   --iteration-count 1 \\
-  2>&1 | tee "\$REPORT_DIR/console.log"
+  2>&1 | tee "$REPORT_DIR/console.log"
 
-EXIT=\$?
+EXIT=$?
 
 echo ""
 echo "========================================"
 echo " Results"
 echo "========================================"
-echo " HTML Report : \$REPORT_DIR/report.html"
-echo " JSON Results: \$REPORT_DIR/results.json"
+echo " HTML Report : $REPORT_DIR/report.html"
+echo " JSON Results: $REPORT_DIR/results.json"
 
-if [ \$EXIT -ne 0 ]; then
+if [ $EXIT -ne 0 ]; then
   echo " Status      : FAILED"
   exit 1
 fi
@@ -538,7 +538,7 @@ exit 0
     const scenarios = posTests.map(tc => {
       const method = (tc.requestMethod || 'GET').toLowerCase();
       const path = tc.requestPath || '/';
-      const url = '`${BASE_URL}' + path + '`';
+      const url = `\`\${BASE_URL}${path}\``;
 
       if (method === 'get') {
         return `  // ${tc.name}

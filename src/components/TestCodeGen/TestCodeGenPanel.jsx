@@ -221,7 +221,7 @@ export default function TestCodeGenPanel() {
       if (/^(PLAYWRIGHT|CYPRESS|SELENIUM-PYTHON|SELENIUM-JAVA|RECOMMENDED_TESTID|STABILITY_NOTES):/.test(trimmed)) {
         if (current) sections.push(current);
         current = { label: trimmed.replace(':', ''), lines: [] };
-      } else if (current && trimmed.startsWith('  ') || (current && !trimmed.includes(':'))) {
+      } else if ((current && trimmed.startsWith('  ')) || (current && !trimmed.includes(':'))) {
         current.lines.push(trimmed);
       } else if (!current) {
         sections.push({ label: 'Info', lines: [trimmed] });

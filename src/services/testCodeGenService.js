@@ -212,9 +212,7 @@ STABILITY_NOTES:
   _buildCodePrompt({ flow, framework, language, appUrl, options, fileList, fromScreenshot }) {
     const url   = appUrl || 'https://app.example.com';
     const fw    = FRAMEWORKS[framework];
-    const isTS  = language === 'TypeScript';
     const isPY  = language === 'Python';
-    const isJAVA = language === 'Java';
 
     const frameworkRules = {
       playwright: `- Use Playwright's built-in auto-waiting (no explicit waits needed)
@@ -252,8 +250,6 @@ STABILITY_NOTES:
     if (options?.dataDriven)  optionsList.push('data-driven tests with multiple input sets');
     if (options?.assertions)  optionsList.push('comprehensive assertions on all state changes');
     if (options?.ciConfig)    optionsList.push('CI-ready config with GitHub Actions example');
-
-    const filesBlock = fileList.map(f => `${FILE_DELIMITER} ${f}---`).join('\n[content here]\n');
 
     return `You are a Principal SDET. Generate production-ready ${fw.label} (${language}) test automation code using Page Object Model.
 
