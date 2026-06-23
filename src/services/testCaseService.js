@@ -15,17 +15,15 @@ const VALID_GROQ_MODELS = [
 
 const VISION_MODEL = 'meta-llama/llama-4-scout-17b-16e-instruct';
 
-/* Ordered fallback chain — confirmed-active GROQ production models only.
- * maxOut = safe output-token ceiling that stays within each model's TPM limit
- * (TPM = input + output; prompt ~700 tokens; leave headroom)
- *   llama-3.3-70b-versatile : 12 000 TPM → up to 7 000 output
- *   llama-3.1-8b-instant    :  6 000 TPM → up to 4 500 output  (6000-700 prompt ≈ 5300, stay safe)
- *   gemma2-9b-it            : 15 000 TPM → up to 7 000 output
+/* Ordered fallback chain — Groq free tier TPM limits:
+ *   llama-3.3-70b-versatile :  6 000 TPM → maxOut capped at 2 500 (prompt ~1k → safe)
+ *   gemma2-9b-it            : 15 000 TPM → maxOut 5 000
+ *   llama-3.1-8b-instant    : 20 000 TPM → maxOut 4 000
  */
 const FALLBACK_CHAIN = [
-  { id: 'llama-3.3-70b-versatile', label: 'LLaMA 3.3 70B (Versatile)', maxOut: 7000 },
-  { id: 'gemma2-9b-it',            label: 'Gemma 2 9B',                 maxOut: 7000 },
-  { id: 'llama-3.1-8b-instant',    label: 'LLaMA 3.1 8B (Instant)',    maxOut: 4500 },
+  { id: 'llama-3.3-70b-versatile', label: 'LLaMA 3.3 70B (Versatile)', maxOut: 2500 },
+  { id: 'gemma2-9b-it',            label: 'Gemma 2 9B',                 maxOut: 5000 },
+  { id: 'llama-3.1-8b-instant',    label: 'LLaMA 3.1 8B (Instant)',    maxOut: 4000 },
 ];
 
 /* Extract "2h 11m 27s" from GROQ 429 error messages */

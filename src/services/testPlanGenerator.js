@@ -7,21 +7,20 @@
  * Model: GROQ llama-3.3-70b-versatile (or user-selected valid GROQ model)
  */
 
-const VALID_GROQ_MODELS = [
-  'llama-3.3-70b-versatile',
-  'llama-3.1-70b-versatile',
-  'llama3-70b-8192',
-  'llama3-8b-8192',
-  'mixtral-8x7b-32768',
-  'gemma2-9b-it',
+const FALLBACK_CHAIN = [
+  { id: 'llama-3.3-70b-versatile', maxOut: 2000 },
+  { id: 'gemma2-9b-it',            maxOut: 4000 },
+  { id: 'llama-3.1-8b-instant',    maxOut: 3500 },
 ];
 
 class TestPlanGenerator {
   constructor(apiKey, model = 'llama-3.3-70b-versatile') {
     this.apiKey = apiKey;
-    // Ensure we always use a valid GROQ model
-    this.model = VALID_GROQ_MODELS.includes(model) ? model : 'llama-3.3-70b-versatile';
     this.baseUrl = 'https://api.groq.com/openai/v1';
+    // Place preferred model first in chain, then remaining models
+    const preferred = FALLBACK_CHAIN.find(m => m.id === model);
+    const rest = FALLBACK_CHAIN.filter(m => m.id !== model);
+    this.modelChain = preferred ? [preferred, ...rest] : FALLBACK_CHAIN;
   }
 
   async validateApiKey() {
@@ -92,42 +91,35 @@ Return this JSON structure (fill ALL fields with product-specific content):
   }
 
   async callGroqAPI(prompt) {
-    try {
-      const response = await fetch(`${this.baseUrl}/chat/completions`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${this.apiKey}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: this.model,
-          messages: [
-            {
-              role: 'system',
-              content:
-                'You are a senior QA architect generating enterprise test plans. Always return valid JSON only — no markdown, no code fences, no explanatory text.',
-            },
-            { role: 'user', content: prompt },
-          ],
-          temperature: 0.3,
-          max_tokens: 6000,
-        }),
-      });
+    const messages = [
+      { role: 'system', content: 'You are a senior QA architect generating enterprise test plans. Always return valid JSON only — no markdown, no code fences, no explanatory text.' },
+      { role: 'user', content: prompt },
+    ];
 
-      if (!response.ok) {
-        const errText = await response.text();
-        return {
-          success: false,
-          error: `GROQ API error ${response.status}: ${errText.substring(0, 300)}`,
-        };
+    for (const model of this.modelChain) {
+      try {
+        const response = await fetch(`${this.baseUrl}/chat/completions`, {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${this.apiKey}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ model: model.id, messages, temperature: 0.3, max_tokens: model.maxOut }),
+        });
+
+        if (!response.ok) {
+          const errText = await response.text();
+          if (response.status === 429 || (response.status === 400 && errText.includes('model_decommissioned'))) {
+            continue; // try next model
+          }
+          return { success: false, error: `GROQ API error ${response.status}: ${errText.substring(0, 300)}` };
+        }
+
+        const data = await response.json();
+        return { success: true, content: data.choices[0].message.content };
+      } catch (error) {
+        return { success: false, error: `GROQ API call failed: ${error.message}` };
       }
-
-      const data = await response.json();
-      const content = data.choices[0].message.content;
-      return { success: true, content };
-    } catch (error) {
-      return { success: false, error: `GROQ API call failed: ${error.message}` };
     }
+
+    return { success: false, error: 'All AI models are rate-limited. Please wait a minute and try again.' };
   }
 
   parseTestPlan(content, input) {
@@ -321,5 +313,5 @@ Return this JSON structure (fill ALL fields with product-specific content):
   }
 }
 
-export { VALID_GROQ_MODELS };
+export const VALID_GROQ_MODELS = FALLBACK_CHAIN.map(m => m.id);
 export default TestPlanGenerator;

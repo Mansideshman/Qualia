@@ -10,9 +10,9 @@ const BASE_URL    = 'https://api.groq.com/openai/v1';
 const VISION_MODEL = 'meta-llama/llama-4-scout-17b-16e-instruct';
 
 const FALLBACK_CHAIN = [
-  { id: 'llama-3.3-70b-versatile', maxOut: 6000 },
-  { id: 'gemma2-9b-it',            maxOut: 6000 },
-  { id: 'llama-3.1-8b-instant',    maxOut: 4000 },
+  { id: 'llama-3.3-70b-versatile', maxOut: 2500 },
+  { id: 'gemma2-9b-it',            maxOut: 4500 },
+  { id: 'llama-3.1-8b-instant',    maxOut: 3500 },
 ];
 
 /* Output delimiter — avoids JSON-escaping code */

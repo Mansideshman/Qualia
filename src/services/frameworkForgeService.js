@@ -9,9 +9,9 @@
 const BASE_URL = 'https://api.groq.com/openai/v1';
 
 const FALLBACK_CHAIN = [
-  { id: 'llama-3.3-70b-versatile', maxOut: 4500 },
-  { id: 'gemma2-9b-it',            maxOut: 4000 },
-  { id: 'llama-3.1-8b-instant',    maxOut: 3500 },
+  { id: 'llama-3.3-70b-versatile', maxOut: 2500 },
+  { id: 'gemma2-9b-it',            maxOut: 3500 },
+  { id: 'llama-3.1-8b-instant',    maxOut: 3000 },
 ];
 
 /* ── Framework metadata exported for UI ─────────────────────── */

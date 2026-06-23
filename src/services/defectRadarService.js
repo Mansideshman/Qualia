@@ -13,8 +13,13 @@ const VISION_MODELS = [
   'llama-3.2-90b-vision-preview',
 ];
 
-const TEXT_MODEL = 'llama-3.3-70b-versatile';
-const BASE_URL   = 'https://api.groq.com/openai/v1';
+const TEXT_CHAIN = [
+  { id: 'llama-3.3-70b-versatile', maxOut: 2500 },
+  { id: 'gemma2-9b-it',            maxOut: 4000 },
+  { id: 'llama-3.1-8b-instant',    maxOut: 3500 },
+];
+
+const BASE_URL = 'https://api.groq.com/openai/v1';
 
 class DefectRadarService {
   constructor(apiKey) {
@@ -24,7 +29,7 @@ class DefectRadarService {
   /* ── Public entry point ─────────────────────────────── */
   async analyseEvidence({ textDescription, appContext, textFileContents, imageBase64List }) {
     const hasImages = imageBase64List && imageBase64List.length > 0;
-    const model     = hasImages ? VISION_MODELS[0] : TEXT_MODEL;
+    const model     = hasImages ? VISION_MODELS[0] : null; // null = use TEXT_CHAIN
 
     const systemPrompt = this._buildSystemPrompt();
     const userContent  = this._buildUserContent({
@@ -244,40 +249,57 @@ Return ONLY valid JSON. No markdown. No code fences.`;
 
   /* ── GROQ API call ──────────────────────────────────── */
   async _callAPI(model, systemPrompt, userContent, hasImages) {
-    try {
-      const messages = [
-        { role: 'system', content: systemPrompt },
-        { role: 'user',   content: userContent  },
-      ];
+    const messages = [
+      { role: 'system', content: systemPrompt },
+      { role: 'user',   content: userContent  },
+    ];
 
-      const response = await fetch(`${BASE_URL}/chat/completions`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${this.apiKey}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model,
-          messages,
-          temperature: 0.2,
-          max_tokens: 6000,
-        }),
-      });
-
-      if (!response.ok) {
-        const errText = await response.text();
-        // Fall back to text model if vision model fails
-        if (hasImages && errText.includes('model')) {
-          return this._callAPI(VISION_MODELS[1], systemPrompt, userContent, false);
+    if (hasImages) {
+      // Vision path: try VISION_MODELS in order
+      for (const vm of VISION_MODELS) {
+        try {
+          const res = await fetch(`${BASE_URL}/chat/completions`, {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${this.apiKey}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ model: vm, messages, temperature: 0.2, max_tokens: 2500 }),
+          });
+          if (!res.ok) {
+            const errText = await res.text();
+            if (res.status === 429 || errText.includes('model')) continue;
+            return { success: false, error: `GROQ API error ${res.status}: ${errText.substring(0, 300)}` };
+          }
+          const data = await res.json();
+          return { success: true, content: data.choices[0].message.content };
+        } catch (err) {
+          return { success: false, error: `API call failed: ${err.message}` };
         }
-        return { success: false, error: `GROQ API error ${response.status}: ${errText.substring(0, 300)}` };
       }
-
-      const data = await response.json();
-      return { success: true, content: data.choices[0].message.content };
-    } catch (err) {
-      return { success: false, error: `API call failed: ${err.message}` };
+      return { success: false, error: 'All vision models unavailable. Please try again.' };
     }
+
+    // Text path: try TEXT_CHAIN with fallback on 429
+    let lastErr = '';
+    for (const m of TEXT_CHAIN) {
+      try {
+        const res = await fetch(`${BASE_URL}/chat/completions`, {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${this.apiKey}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ model: m.id, messages, temperature: 0.2, max_tokens: m.maxOut }),
+        });
+        if (!res.ok) {
+          const errText = await res.text();
+          if (res.status === 429 || (res.status === 400 && errText.includes('model_decommissioned'))) {
+            lastErr = errText; continue;
+          }
+          return { success: false, error: `GROQ API error ${res.status}: ${errText.substring(0, 300)}` };
+        }
+        const data = await res.json();
+        return { success: true, content: data.choices[0].message.content };
+      } catch (err) {
+        return { success: false, error: `API call failed: ${err.message}` };
+      }
+    }
+    return { success: false, error: `All AI models rate-limited. Please wait and try again. (${lastErr.substring(0, 100)})` };
   }
 
   /* ── Parse response ─────────────────────────────────── */
