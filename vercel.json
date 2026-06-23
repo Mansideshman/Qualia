@@ -3,6 +3,7 @@
   "buildCommand": "npm run build",
   "outputDirectory": "build",
   "installCommand": "npm install",
+  "alias": ["qualiqa.vercel.app", "qualiaqa.vercel.app"],
   "functions": {
     "api/**/*.js": {
       "memory": 1024,
