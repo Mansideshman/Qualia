@@ -2,6 +2,7 @@ import React from 'react';
 import '../styles/Sidebar.css';
 
 const NAV_ITEMS = [
+  { id: 'qabuddy',    icon: '🤖', label: 'QA Buddy',            desc: 'Your AI QA mentor'          },
   { id: 'generation', icon: '⚡', label: 'Test Intelligence',   desc: 'Strategic test plans'       },
   { id: 'testcases',  icon: '🧪', label: 'Scenario Forge',      desc: 'Precision test cases'       },
   { id: 'strategy',   icon: '📐', label: 'Test Blueprint',      desc: 'Multi-dimension strategy'   },

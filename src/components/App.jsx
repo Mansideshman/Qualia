@@ -20,13 +20,14 @@ import DefectRadarPanel from './DefectRadar/DefectRadarPanel';
 import APIContractForgePanel from './APIContractForge/APIContractForgePanel';
 import TestCodeGenPanel from './TestCodeGen/TestCodeGenPanel';
 import FrameworkForgePanel from './FrameworkForge/FrameworkForgePanel';
+import QABuddyPanel from './QABuddy/QABuddyPanel';
 import './App.css';
 
 /**
  * AppContent component (inside providers)
  */
 function AppContent() {
-  const [activeTab, setActiveTab] = useState('generation');
+  const [activeTab, setActiveTab] = useState('qabuddy');
   const { isValidated } = useConfig();
   const [isDarkMode, setIsDarkMode] = useState(false);
 
@@ -60,6 +61,7 @@ function AppContent() {
     if (!isValidated || activeTab === 'settings') {
       return <SettingsPanel onConfigSaved={() => setActiveTab('generation')} />;
     }
+    if (activeTab === 'qabuddy')    return <QABuddyPanel />;
     if (activeTab === 'testcases') return <TestCaseGenerator />;
     if (activeTab === 'strategy')  return <TestStrategyGeneratorPanel />;
     if (activeTab === 'metrics')   return <TestMetricsGenerator />;
