@@ -16,6 +16,10 @@
       "destination": "/api/jira.js?path=:path*"
     },
     {
+      "source": "/api/bugtracker",
+      "destination": "/api/bugtracker.js"
+    },
+    {
       "source": "/:path*",
       "destination": "/index.html"
     }

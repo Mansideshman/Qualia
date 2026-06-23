@@ -223,6 +223,31 @@ function buildMarkdownDesc(t, buildVersion) {
 }
 
 /* ══════════════════════════════════════════════════════
+   SERVER-SIDE PROXY FETCH
+   Routes all bug tracker calls through /api/bugtracker
+   to avoid CORS issues with YouTrack, Jira, Azure DevOps.
+══════════════════════════════════════════════════════ */
+async function proxyFetch(url, options = {}) {
+  const res = await fetch('/api/bugtracker', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      url,
+      method:  options.method  || 'POST',
+      headers: options.headers || {},
+      body:    options.body,   // already-stringified by callers
+    }),
+  });
+  const text = await res.text();
+  return {
+    ok:     res.ok,
+    status: res.status,
+    text:   async () => text,
+    json:   async () => { try { return JSON.parse(text); } catch { return {}; } },
+  };
+}
+
+/* ══════════════════════════════════════════════════════
    BUG TRACKER SERVICE
 ══════════════════════════════════════════════════════ */
 class BugTrackerService {
@@ -246,7 +271,7 @@ class BugTrackerService {
     if (cfg.component?.trim())   fields.components  = [{ name: cfg.component.trim() }];
     if (buildVersion)            fields.fixVersions = [{ name: buildVersion }];
 
-    const doPost = (f) => fetch(`${base}/rest/api/3/issue`, {
+    const doPost = (f) => proxyFetch(`${base}/rest/api/3/issue`, {
       method: 'POST',
       headers: { Authorization: `Basic ${auth}`, 'Content-Type': 'application/json', Accept: 'application/json' },
       body: JSON.stringify({ fields: f }),
@@ -295,7 +320,7 @@ class BugTrackerService {
       customFields.push({ $type: 'MultiVersionIssueCustomField', name: 'Affected versions', value: [{ $type: 'VersionBundleElement', name: buildVersion }] });
     }
 
-    let res = await fetch(`${base}/api/issues?fields=id,idReadable`, {
+    let res = await proxyFetch(`${base}/api/issues?fields=id,idReadable`, {
       method: 'POST', headers,
       body: JSON.stringify({
         project: { id: cfg.projectId },
@@ -309,7 +334,7 @@ class BugTrackerService {
     if (!res.ok) {
       const errText = await res.text().catch(() => '');
       if (res.status === 400 && (errText.includes('customField') || errText.includes('Unknown') || errText.includes('field'))) {
-        res = await fetch(`${base}/api/issues?fields=id,idReadable`, {
+        res = await proxyFetch(`${base}/api/issues?fields=id,idReadable`, {
           method: 'POST', headers,
           body: JSON.stringify({
             project:     { id: cfg.projectId },
@@ -341,7 +366,7 @@ class BugTrackerService {
     };
     if (cfg.assigneeId?.trim()) input.assigneeId = cfg.assigneeId.trim();
 
-    const res  = await fetch('https://api.linear.app/graphql', {
+    const res  = await proxyFetch('https://api.linear.app/graphql', {
       method: 'POST',
       headers: { Authorization: cfg.apiKey, 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -371,7 +396,7 @@ class BugTrackerService {
     const body = { title: ticket.title, body: buildMarkdownDesc(ticket, buildVersion), labels };
     if (cfg.assignee?.trim()) body.assignees = [cfg.assignee.trim()];
 
-    const res = await fetch(`https://api.github.com/repos/${cfg.owner}/${cfg.repo}/issues`, {
+    const res = await proxyFetch(`https://api.github.com/repos/${cfg.owner}/${cfg.repo}/issues`, {
       method: 'POST',
       headers: { Authorization: `Bearer ${cfg.token}`, 'Content-Type': 'application/json', Accept: 'application/vnd.github.v3+json' },
       body: JSON.stringify(body),
@@ -420,7 +445,7 @@ class BugTrackerService {
     if (buildVersion)           patchDoc.push({ op: 'add', path: '/fields/Microsoft.VSTS.Build.FoundIn',   value: buildVersion });
     if (cfg.areaPath?.trim())   patchDoc.push({ op: 'add', path: '/fields/System.AreaPath',                value: cfg.areaPath.trim() });
 
-    const res = await fetch(`${base}/_apis/wit/workitems/$Bug?api-version=7.1`, {
+    const res = await proxyFetch(`${base}/_apis/wit/workitems/$Bug?api-version=7.1`, {
       method: 'POST',
       headers: { Authorization: `Basic ${auth}`, 'Content-Type': 'application/json-patch+json' },
       body: JSON.stringify(patchDoc),
