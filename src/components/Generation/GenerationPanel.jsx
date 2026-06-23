@@ -9,6 +9,7 @@ import { useConfig } from '../../context/ConfigContext';
 import TestPlanGenerator from '../../services/testPlanGenerator';
 import TestPlanDisplay from './TestPlanDisplay';
 import LoadingSpinner from '../LoadingSpinner';
+import { extractFileContent, describeImageViaVision } from '../../utils/fileExtractor';
 import '../styles/GenerationPanel.css';
 
 const PRODUCT_TYPES = [
@@ -69,17 +70,24 @@ export default function GenerationPanel() {
   const [testPlan, setTestPlan] = useState(null);
   const [error, setError] = useState('');
   const [attachedDoc, setAttachedDoc] = useState(null);
+  const [extractingDoc, setExtractingDoc] = useState(false);
   const docRef = useRef(null);
 
   const activeInputType = INPUT_TYPES.find((t) => t.id === inputTypeId);
 
-  const handleDocFile = (e) => {
+  const handleDocFile = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => setAttachedDoc({ name: file.name, content: ev.target.result, size: file.size });
-    reader.readAsText(file);
     e.target.value = '';
+    setExtractingDoc(true);
+    try {
+      const result = await extractFileContent(file);
+      setAttachedDoc({ name: file.name, ...result });
+    } catch (err) {
+      setError(`Failed to read file: ${err.message}`);
+    } finally {
+      setExtractingDoc(false);
+    }
   };
 
   const handleGenerate = async (e) => {
@@ -93,13 +101,22 @@ export default function GenerationPanel() {
         throw new Error('GROQ API key not configured. Please go to Settings and enter your GROQ API key.');
       }
       if (!productName.trim()) throw new Error('Please enter a product or feature name.');
-      if (!requirements.trim()) throw new Error('Please paste your requirements, user story, or feature description.');
+      if (!requirements.trim() && !attachedDoc) throw new Error('Please paste your requirements or attach a document.');
 
       const generator = new TestPlanGenerator(config.groq.apiKey, config.groq.model);
 
       setLoadingStage('Analysing requirements...');
-      const fullReqs = requirements.trim() +
-        (attachedDoc ? `\n\n--- ATTACHED DOCUMENT: ${attachedDoc.name} ---\n${attachedDoc.content}` : '');
+      let docContext = '';
+      if (attachedDoc) {
+        if (attachedDoc.category === 'image') {
+          setLoadingStage('Analysing attached image...');
+          const desc = await describeImageViaVision(attachedDoc.base64, attachedDoc.mimeType, config.groq.apiKey);
+          docContext = `\n\n--- ATTACHED IMAGE DESCRIPTION: ${attachedDoc.name} ---\n${desc}`;
+        } else {
+          docContext = `\n\n--- ATTACHED DOCUMENT: ${attachedDoc.name} ---\n${attachedDoc.text}`;
+        }
+      }
+      const fullReqs = requirements.trim() + docContext;
 
       const input = {
         productName: productName.trim(),
@@ -224,7 +241,6 @@ export default function GenerationPanel() {
               onChange={(e) => setRequirements(e.target.value)}
               placeholder={activeInputType?.placeholder}
               rows={9}
-              required
             />
             <small>
               {requirements.length} characters
@@ -235,18 +251,22 @@ export default function GenerationPanel() {
 
           {/* Document attachment */}
           <div className="doc-attach-row">
-            <button type="button" className="doc-attach-btn" onClick={() => docRef.current?.click()}>
+            <button type="button" className="doc-attach-btn" onClick={() => docRef.current?.click()} disabled={extractingDoc}>
               📎 Attach Document
             </button>
-            <span className="doc-attach-hint">.txt · .md · .json · .xml · .yaml · .csv · .feature</span>
-            {attachedDoc && (
+            <span className="doc-attach-hint">.txt · .md · .pdf · .docx · .png · .jpg</span>
+            {extractingDoc && <span className="doc-chip doc-chip-loading">⏳ Extracting…</span>}
+            {attachedDoc && !extractingDoc && (
               <span className="doc-chip">
-                📄 {attachedDoc.name}
+                {attachedDoc.category === 'image'
+                  ? <img src={attachedDoc.dataUrl} alt="" className="doc-chip-thumb" />
+                  : '📄 '}
+                {attachedDoc.name}
                 <button type="button" className="doc-chip-remove" onClick={() => setAttachedDoc(null)}>✕</button>
               </span>
             )}
           </div>
-          <input ref={docRef} type="file" accept=".txt,.md,.json,.xml,.yaml,.yml,.csv,.log,.feature,.properties,.conf,.ts,.js" style={{ display: 'none' }} onChange={handleDocFile} />
+          <input ref={docRef} type="file" accept=".txt,.md,.json,.xml,.yaml,.yml,.csv,.log,.feature,.pdf,.doc,.docx,.png,.jpg,.jpeg" style={{ display: 'none' }} onChange={handleDocFile} />
 
           {error && (
             <div className="error-banner">

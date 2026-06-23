@@ -2,6 +2,7 @@ import React, { useState, useCallback, useRef } from 'react';
 import { useConfig } from '../../context/ConfigContext';
 import TestCaseService, { TEST_TYPES } from '../../services/testCaseService';
 import { exportTestCases } from '../../utils/testCaseExporter';
+import { extractFileContent, describeImageViaVision } from '../../utils/fileExtractor';
 import TestCaseTable from './TestCaseTable';
 import '../styles/TestCaseGenerator.css';
 
@@ -128,6 +129,7 @@ export default function TestCaseGenerator() {
   const docFileRef   = useRef(null);
 
   const [attachedDoc, setAttachedDoc] = useState(null);
+  const [extractingDoc, setExtractingDoc] = useState(false);
 
   /* generation state */
   const [loading, setLoading] = useState(false);
@@ -186,13 +188,19 @@ export default function TestCaseGenerator() {
     setScreenshotAnalysis('');
   };
 
-  const handleDocFile = (e) => {
+  const handleDocFile = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => setAttachedDoc({ name: file.name, content: ev.target.result });
-    reader.readAsText(file);
     e.target.value = '';
+    setExtractingDoc(true);
+    try {
+      const result = await extractFileContent(file);
+      setAttachedDoc({ name: file.name, ...result });
+    } catch (err) {
+      setError(`Failed to read file: ${err.message}`);
+    } finally {
+      setExtractingDoc(false);
+    }
   };
 
   /* generate */
@@ -225,10 +233,16 @@ export default function TestCaseGenerator() {
     const service = new TestCaseService(config.groq.apiKey, config.groq.model);
 
     /* Screenshot mode: analyze image first, then use extracted requirements */
-    let derivedRequirements = requirements.trim() +
-      (attachedDoc && inputMode === INPUT_MODES.PRD
-        ? `\n\n--- ATTACHED DOCUMENT: ${attachedDoc.name} ---\n${attachedDoc.content}`
-        : '');
+    let docContext = '';
+    if (attachedDoc && inputMode === INPUT_MODES.PRD) {
+      if (attachedDoc.category === 'image') {
+        const desc = await describeImageViaVision(attachedDoc.base64, attachedDoc.mimeType, config.groq.apiKey);
+        docContext = `\n\n--- ATTACHED IMAGE DESCRIPTION: ${attachedDoc.name} ---\n${desc}`;
+      } else {
+        docContext = `\n\n--- ATTACHED DOCUMENT: ${attachedDoc.name} ---\n${attachedDoc.text}`;
+      }
+    }
+    let derivedRequirements = requirements.trim() + docContext;
     if (inputMode === INPUT_MODES.SCREENSHOT) {
       setAnalyzingShot(true);
       const base64 = screenshotPreview.split(',')[1];
@@ -408,18 +422,22 @@ export default function TestCaseGenerator() {
                 rows={7}
               />
               <div className="doc-attach-row">
-                <button type="button" className="doc-attach-btn" onClick={() => docFileRef.current?.click()}>
+                <button type="button" className="doc-attach-btn" onClick={() => docFileRef.current?.click()} disabled={extractingDoc}>
                   📎 Attach Document
                 </button>
-                <span className="doc-attach-hint">.txt · .md · .json · .xml · .yaml · .csv · .feature</span>
-                {attachedDoc && (
+                <span className="doc-attach-hint">.txt · .md · .pdf · .docx · .png · .jpg</span>
+                {extractingDoc && <span className="doc-chip doc-chip-loading">⏳ Extracting…</span>}
+                {attachedDoc && !extractingDoc && (
                   <span className="doc-chip">
-                    📄 {attachedDoc.name}
+                    {attachedDoc.category === 'image'
+                      ? <img src={attachedDoc.dataUrl} alt="" className="doc-chip-thumb" />
+                      : '📄 '}
+                    {attachedDoc.name}
                     <button type="button" className="doc-chip-remove" onClick={() => setAttachedDoc(null)}>✕</button>
                   </span>
                 )}
               </div>
-              <input ref={docFileRef} type="file" accept=".txt,.md,.json,.xml,.yaml,.yml,.csv,.log,.feature,.properties,.conf,.ts,.js" style={{ display: 'none' }} onChange={handleDocFile} />
+              <input ref={docFileRef} type="file" accept=".txt,.md,.json,.xml,.yaml,.yml,.csv,.log,.feature,.pdf,.doc,.docx,.png,.jpg,.jpeg" style={{ display: 'none' }} onChange={handleDocFile} />
             </div>
           ) : inputMode === INPUT_MODES.SCREENSHOT ? (
             <div className="tcg-field">

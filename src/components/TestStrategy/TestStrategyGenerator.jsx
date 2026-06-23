@@ -9,6 +9,7 @@ import * as XLSX from 'xlsx';
 import { useConfig } from '../../context/ConfigContext';
 import TestStrategyService from '../../services/testStrategyService';
 import { exportStrategyToHTML, exportStrategyToMarkdown } from '../../services/testMetricsExporter';
+import { extractFileContent, describeImageViaVision } from '../../utils/fileExtractor';
 import LoadingSpinner from '../LoadingSpinner';
 import '../styles/TestStrategy.css';
 
@@ -322,17 +323,24 @@ export default function TestStrategyGeneratorPanel() {
   const [error, setError] = useState('');
   const [activeSection, setActiveSection] = useState('risks');
   const [attachedDoc, setAttachedDoc] = useState(null);
+  const [extractingDoc, setExtractingDoc] = useState(false);
   const docRef = useRef(null);
 
   const isGroqConfigured = !!config?.groq?.apiKey;
 
-  const handleDocFile = (e) => {
+  const handleDocFile = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => setAttachedDoc({ name: file.name, content: ev.target.result });
-    reader.readAsText(file);
     e.target.value = '';
+    setExtractingDoc(true);
+    try {
+      const result = await extractFileContent(file);
+      setAttachedDoc({ name: file.name, ...result });
+    } catch (err) {
+      setError(`Failed to read file: ${err.message}`);
+    } finally {
+      setExtractingDoc(false);
+    }
   };
 
   const exportToExcel = () => {
@@ -406,8 +414,16 @@ export default function TestStrategyGeneratorPanel() {
       if (!config?.groq?.apiKey) throw new Error('GROQ API key not configured. Go to Settings first.');
 
       const service = new TestStrategyService(config.groq.apiKey, config.groq.model);
-      const fullReqs = requirements.trim() +
-        (attachedDoc ? `\n\n--- ATTACHED DOCUMENT: ${attachedDoc.name} ---\n${attachedDoc.content}` : '');
+      let docContext = '';
+      if (attachedDoc) {
+        if (attachedDoc.category === 'image') {
+          const desc = await describeImageViaVision(attachedDoc.base64, attachedDoc.mimeType, config.groq.apiKey);
+          docContext = `\n\n--- ATTACHED IMAGE DESCRIPTION: ${attachedDoc.name} ---\n${desc}`;
+        } else {
+          docContext = `\n\n--- ATTACHED DOCUMENT: ${attachedDoc.name} ---\n${attachedDoc.text}`;
+        }
+      }
+      const fullReqs = requirements.trim() + docContext;
       const input = inputMode === 'issue'
         ? { productName: issueKey.trim().toUpperCase() || 'Tracker Issue', requirements: `Tracker Issue: ${issueKey.trim().toUpperCase()}`, productType, version: productVersion }
         : { productName: productName.trim(), requirements: fullReqs, productType, version: productVersion.trim() || '1.0' };
@@ -521,18 +537,22 @@ export default function TestStrategyGeneratorPanel() {
 
               {/* Document attachment */}
               <div className="doc-attach-row">
-                <button type="button" className="doc-attach-btn" onClick={() => docRef.current?.click()}>
+                <button type="button" className="doc-attach-btn" onClick={() => docRef.current?.click()} disabled={extractingDoc}>
                   📎 Attach Document
                 </button>
-                <span className="doc-attach-hint">.txt · .md · .json · .xml · .yaml · .csv · .feature</span>
-                {attachedDoc && (
+                <span className="doc-attach-hint">.txt · .md · .pdf · .docx · .png · .jpg</span>
+                {extractingDoc && <span className="doc-chip doc-chip-loading">⏳ Extracting…</span>}
+                {attachedDoc && !extractingDoc && (
                   <span className="doc-chip">
-                    📄 {attachedDoc.name}
+                    {attachedDoc.category === 'image'
+                      ? <img src={attachedDoc.dataUrl} alt="" className="doc-chip-thumb" />
+                      : '📄 '}
+                    {attachedDoc.name}
                     <button type="button" className="doc-chip-remove" onClick={() => setAttachedDoc(null)}>✕</button>
                   </span>
                 )}
               </div>
-              <input ref={docRef} type="file" accept=".txt,.md,.json,.xml,.yaml,.yml,.csv,.log,.feature,.properties,.conf,.ts,.js" style={{ display: 'none' }} onChange={handleDocFile} />
+              <input ref={docRef} type="file" accept=".txt,.md,.json,.xml,.yaml,.yml,.csv,.log,.feature,.pdf,.doc,.docx,.png,.jpg,.jpeg" style={{ display: 'none' }} onChange={handleDocFile} />
             </>
           ) : (
             <div className="form-row two-col">
