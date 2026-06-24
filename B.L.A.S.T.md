@@ -104,7 +104,7 @@ Before building any Tool, you must define the **Data Schema** in `gemini.md`.
         - A rule is added
         - Architecture is modified
 
-`gemini.md` is *law*.
+`gemini.md` is *law*
 
 The planning files are *memory*.
 

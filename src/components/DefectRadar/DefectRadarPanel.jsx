@@ -5,6 +5,8 @@
 
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { useConfig } from '../../context/ConfigContext';
+import { useHistory } from '../../context/HistoryContext';
+import '../History/HistoryPanel.css';
 import DefectRadarService from '../../services/defectRadarService';
 import DefectTicketDisplay from './DefectTicketDisplay';
 import '../styles/DefectRadar.css';
@@ -102,6 +104,16 @@ function getFileIcon(file) {
 
 export default function DefectRadarPanel() {
   const { config } = useConfig();
+  const { saveItem } = useHistory();
+  const [savedFlash, setSavedFlash] = useState(false);
+
+  const handleSave = useCallback(() => {
+    if (!result) return;
+    const title = appName || result?.title || 'Defect Analysis';
+    saveItem('defect', title, { result, appName });
+    setSavedFlash(true);
+    setTimeout(() => setSavedFlash(false), 2000);
+  }, [result, appName, saveItem]);
 
   /* ── Mode ── */
   const [panelMode, setPanelMode] = useState(PANEL_MODES.QUICK);
@@ -677,7 +689,16 @@ export default function DefectRadarPanel() {
       )}
 
       {/* Results */}
-      {result && <DefectTicketDisplay result={result} appVersion={appVersion} />}
+      {result && (
+        <>
+          <div style={{ display:'flex', justifyContent:'flex-end', padding:'8px 24px 0' }}>
+            <button className={`history-save-btn${savedFlash ? ' saved' : ''}`} onClick={handleSave}>
+              {savedFlash ? '✓ Saved' : '💾 Save'}
+            </button>
+          </div>
+          <DefectTicketDisplay result={result} appVersion={appVersion} />
+        </>
+      )}
     </div>
   );
 }

@@ -4,8 +4,10 @@
  * Input: PRD · User Story · Feature Description · Acceptance Criteria
  */
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useConfig } from '../../context/ConfigContext';
+import { useHistory } from '../../context/HistoryContext';
+import '../History/HistoryPanel.css';
 import TestPlanGenerator from '../../services/testPlanGenerator';
 import TestPlanDisplay from './TestPlanDisplay';
 import LoadingSpinner from '../LoadingSpinner';
@@ -58,6 +60,8 @@ const INPUT_TYPES = [
 
 export default function GenerationPanel() {
   const { config } = useConfig();
+  const { saveItem, pendingRestore, clearPendingRestore } = useHistory();
+  const [savedFlash, setSavedFlash] = useState(false);
 
   const [inputTypeId, setInputTypeId] = useState('prd');
   const [productName, setProductName] = useState('');
@@ -72,6 +76,27 @@ export default function GenerationPanel() {
   const [attachedDoc, setAttachedDoc] = useState(null);
   const [extractingDoc, setExtractingDoc] = useState(false);
   const docRef = useRef(null);
+
+  useEffect(() => {
+    if (pendingRestore?.type === 'generation') {
+      const d = pendingRestore.data;
+      if (d.productName)    setProductName(d.productName);
+      if (d.productType)    setProductType(d.productType);
+      if (d.productVersion) setProductVersion(d.productVersion);
+      if (d.inputTypeId)    setInputTypeId(d.inputTypeId);
+      if (d.requirements)   setRequirements(d.requirements);
+      if (d.testPlan)       setTestPlan(d.testPlan);
+      clearPendingRestore();
+    }
+  }, [pendingRestore, clearPendingRestore]);
+
+  const handleSave = useCallback(() => {
+    if (!testPlan) return;
+    const title = productName || requirements.slice(0, 60) || 'Test Plan';
+    saveItem('generation', title, { productName, productType, productVersion, inputTypeId, requirements, testPlan });
+    setSavedFlash(true);
+    setTimeout(() => setSavedFlash(false), 2000);
+  }, [testPlan, productName, productType, productVersion, inputTypeId, requirements, saveItem]);
 
   const activeInputType = INPUT_TYPES.find((t) => t.id === inputTypeId);
 
@@ -316,7 +341,16 @@ export default function GenerationPanel() {
         )}
       </div>
 
-      {testPlan && <TestPlanDisplay testPlan={testPlan} />}
+      {testPlan && (
+        <>
+          <div style={{ display:'flex', justifyContent:'flex-end', padding:'8px 24px 0' }}>
+            <button className={`history-save-btn${savedFlash ? ' saved' : ''}`} onClick={handleSave}>
+              {savedFlash ? '✓ Saved to History' : '💾 Save to History'}
+            </button>
+          </div>
+          <TestPlanDisplay testPlan={testPlan} />
+        </>
+      )}
     </div>
   );
 }

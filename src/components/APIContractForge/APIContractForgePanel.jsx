@@ -1,4 +1,6 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
+import { useHistory } from '../../context/HistoryContext';
+import '../History/HistoryPanel.css';
 import { useConfig } from '../../context/ConfigContext';
 import APIContractService from '../../services/apiContractService';
 import '../styles/APIContractForge.css';
@@ -32,6 +34,8 @@ const PRIORITY_COLORS = {
 };
 
 export default function APIContractForgePanel() {
+  const { saveItem, pendingRestore, clearPendingRestore } = useHistory();
+  const [savedFlash, setSavedFlash] = useState(false);
   const { config } = useConfig();
 
   const [specFile,    setSpecFile]    = useState(null);
@@ -47,6 +51,24 @@ export default function APIContractForgePanel() {
 
   const [result,    setResult]    = useState(null);
   const [activeTab, setActiveTab] = useState('positive');
+
+  useEffect(() => {
+    if (pendingRestore?.type === 'apiforge') {
+      const d = pendingRestore.data;
+      if (d.specText) setSpecText(d.specText);
+      if (d.baseUrl)  setBaseUrl(d.baseUrl);
+      if (d.result)   setResult(d.result);
+      clearPendingRestore();
+    }
+  }, [pendingRestore, clearPendingRestore]);
+
+  const handleSave = useCallback(() => {
+    if (!result) return;
+    const title = result.specInfo?.title || baseUrl || 'API Contract';
+    saveItem('apiforge', title, { specText, baseUrl, authType, result });
+    setSavedFlash(true);
+    setTimeout(() => setSavedFlash(false), 2000);
+  }, [result, specText, baseUrl, authType, saveItem]);
 
   /* ── File handling ───────────────────────────────── */
   const loadFile = (file) => {
@@ -380,6 +402,11 @@ export default function APIContractForgePanel() {
             <div className="acf-results-title">
               <span className="acf-results-check">✅</span>
               Test Suite Generated
+            </div>
+            <div style={{ display:'flex', alignItems:'center', gap:'8px' }}>
+              <button className={`history-save-btn${savedFlash ? ' saved' : ''}`} onClick={handleSave}>
+                {savedFlash ? '✓ Saved' : '💾 Save'}
+              </button>
             </div>
             <div className="acf-results-chips">
               <span className="acf-chip">{totalTests} test cases</span>

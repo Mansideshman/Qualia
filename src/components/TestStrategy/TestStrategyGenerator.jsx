@@ -4,9 +4,11 @@
  * RICE-POT = Risks · Items · Criteria · Environment · People · Objectives · Tools
  */
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import * as XLSX from 'xlsx';
 import { useConfig } from '../../context/ConfigContext';
+import { useHistory } from '../../context/HistoryContext';
+import '../History/HistoryPanel.css';
 import TestStrategyService from '../../services/testStrategyService';
 import { exportStrategyToHTML, exportStrategyToMarkdown } from '../../services/testMetricsExporter';
 import { extractFileContent, describeImageViaVision } from '../../utils/fileExtractor';
@@ -309,6 +311,8 @@ function ToolsTab({ data }) {
 /* ── Main component ───────────────────────────────────── */
 export default function TestStrategyGeneratorPanel() {
   const { config } = useConfig();
+  const { saveItem, pendingRestore, clearPendingRestore } = useHistory();
+  const [savedFlash, setSavedFlash] = useState(false);
 
   const [inputMode, setInputMode] = useState('prd');
   const [productName, setProductName] = useState('');
@@ -325,6 +329,26 @@ export default function TestStrategyGeneratorPanel() {
   const [attachedDoc, setAttachedDoc] = useState(null);
   const [extractingDoc, setExtractingDoc] = useState(false);
   const docRef = useRef(null);
+
+  useEffect(() => {
+    if (pendingRestore?.type === 'strategy') {
+      const d = pendingRestore.data;
+      if (d.productName)    setProductName(d.productName);
+      if (d.productType)    setProductType(d.productType);
+      if (d.productVersion) setProductVersion(d.productVersion);
+      if (d.requirements)   setRequirements(d.requirements);
+      if (d.strategy)       setStrategy(d.strategy);
+      clearPendingRestore();
+    }
+  }, [pendingRestore, clearPendingRestore]);
+
+  const handleSave = useCallback(() => {
+    if (!strategy) return;
+    const title = productName || requirements.slice(0, 60) || 'Test Strategy';
+    saveItem('strategy', title, { productName, productType, productVersion, requirements, strategy });
+    setSavedFlash(true);
+    setTimeout(() => setSavedFlash(false), 2000);
+  }, [strategy, productName, productType, productVersion, requirements, saveItem]);
 
   const isGroqConfigured = !!config?.groq?.apiKey;
 
@@ -617,7 +641,7 @@ export default function TestStrategyGeneratorPanel() {
         <div className="strat-display">
 
           {/* Output header */}
-          <div className="strat-display-header">
+          <div className="strat-display-header" style={{ display:'flex', alignItems:'center', justifyContent:'space-between', gap:'12px' }}>
             <div className="strat-meta-block">
               <h2 className="strat-product-name">RICE-POT Test Strategy — {strategy.productName}</h2>
               <div className="strat-meta-tags">
@@ -627,7 +651,10 @@ export default function TestStrategyGeneratorPanel() {
                 <span className="strat-meta-tag">{new Date(strategy.generatedAt).toLocaleDateString()}</span>
               </div>
             </div>
-            <div className="export-bar">
+            <div className="export-bar" style={{ display:'flex', alignItems:'center', gap:'6px', flexWrap:'wrap' }}>
+              <button className={`history-save-btn${savedFlash ? ' saved' : ''}`} onClick={handleSave}>
+                {savedFlash ? '✓ Saved' : '💾 Save'}
+              </button>
               <span className="export-label">Download:</span>
               <button className="export-btn excel-btn" onClick={exportToExcel}>📊 Excel</button>
               <button className="export-btn md-btn" onClick={() => exportStrategyToHTML(strategy)}>📄 HTML (PDF-ready)</button>

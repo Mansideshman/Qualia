@@ -7,7 +7,9 @@
  * Export: Markdown · CSV · Excel · HTML (PDF-printable)
  */
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
+import { useHistory } from '../../context/HistoryContext';
+import '../History/HistoryPanel.css';
 import {
   exportToMarkdown,
   exportToCSV,
@@ -184,6 +186,8 @@ function RicepotRow({ letter, data }) {
 
 /* ── Main component ────────────────────────────────────── */
 export default function TestMetricsGenerator() {
+  const { saveItem } = useHistory();
+  const [savedFlash, setSavedFlash] = useState(false);
   const [projectName, setProjectName] = useState('');
   const [inputs, setInputs] = useState({
     requirements: '', totalTestCases: '', executed: '', passed: '',
@@ -427,6 +431,14 @@ export default function TestMetricsGenerator() {
 
           {/* Export bar */}
           <div className="tm-export-bar">
+            <button className={`history-save-btn${savedFlash ? ' saved' : ''}`}
+              onClick={useCallback(() => {
+                const title = projectName || 'Release Metrics';
+                saveItem('metrics', title, { projectName, inputs, assumptions, exitCriteria });
+                setSavedFlash(true); setTimeout(() => setSavedFlash(false), 2000);
+              }, [projectName, inputs, assumptions, exitCriteria, saveItem])}>
+              {savedFlash ? '✓ Saved' : '💾 Save'}
+            </button>
             <span className="tm-export-label">Download Report:</span>
             <button className="tm-export-btn btn-md"    onClick={() => exportToMarkdown(inputs, calc, exitCriteria, assumptions, pName)} title="Download as Markdown file">📝 Markdown</button>
             <button className="tm-export-btn btn-csv"   onClick={() => exportToCSV(inputs, calc, exitCriteria, assumptions, pName)}      title="Download as CSV">📊 CSV</button>

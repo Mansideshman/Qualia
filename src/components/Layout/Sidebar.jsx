@@ -1,4 +1,5 @@
 import React from 'react';
+import { useHistory } from '../../context/HistoryContext';
 import '../styles/Sidebar.css';
 
 const NAV_ITEMS = [
@@ -11,10 +12,13 @@ const NAV_ITEMS = [
   { id: 'apiforge',   icon: '🔗', label: 'API Contract Forge',  desc: 'OpenAPI → test suite'       },
   { id: 'codegen',    icon: '🎭', label: 'Test Code Generator', desc: 'Playwright / Cypress / Selenium' },
   { id: 'framework',  icon: '🏗️', label: 'Framework Forge',     desc: 'Full E2E framework generator'   },
+  { id: 'history',    icon: '📚', label: 'History',             desc: 'Saved sessions & docs'      },
   { id: 'settings',   icon: '⚙️', label: 'Settings',            desc: 'API configuration'          },
 ];
 
 export default function Sidebar({ activeTab, onTabChange }) {
+  const { items } = useHistory();
+  const historyCount = items.length;
   return (
     <aside className="sidebar">
       <nav className="sidebar-nav">
@@ -31,6 +35,9 @@ export default function Sidebar({ activeTab, onTabChange }) {
               <span className="nav-label">
                 {item.label}
                 {item.comingSoon && <span className="nav-soon-chip">Soon</span>}
+                {item.id === 'history' && historyCount > 0 && (
+                  <span className="nav-badge">{historyCount}</span>
+                )}
               </span>
               <span className="nav-desc">{item.desc}</span>
             </div>

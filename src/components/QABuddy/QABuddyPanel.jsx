@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useConfig } from '../../context/ConfigContext';
+import { useHistory } from '../../context/HistoryContext';
 import '../styles/QABuddy.css';
+import '../History/HistoryPanel.css';
 
 const BASE_URL     = 'https://api.groq.com/openai/v1';
 const VISION_MODEL = 'meta-llama/llama-4-scout-17b-16e-instruct';
@@ -156,6 +158,8 @@ function genId() {
 export default function QABuddyPanel() {
   const { config: appConfig } = useConfig();
   const apiKey = appConfig.groq?.apiKey;
+  const { saveItem, pendingRestore, clearPendingRestore } = useHistory();
+  const [savedFlash, setSavedFlash] = useState(false);
 
   const [messages, setMessages]         = useState([]);
   const [input, setInput]               = useState('');
@@ -170,6 +174,23 @@ export default function QABuddyPanel() {
   const folderRef    = useRef(null);
   const textareaRef  = useRef(null);
   const pendingCallRef = useRef(null);
+
+  /* restore from history */
+  useEffect(() => {
+    if (pendingRestore?.type === 'qabuddy') {
+      setMessages(pendingRestore.data.messages || []);
+      clearPendingRestore();
+    }
+  }, [pendingRestore, clearPendingRestore]);
+
+  const handleSave = useCallback(() => {
+    if (!messages.length) return;
+    const firstUser = messages.find(m => m.role === 'user');
+    const title = firstUser ? firstUser.content.slice(0, 60) : 'QA Buddy Session';
+    saveItem('qabuddy', title, { messages });
+    setSavedFlash(true);
+    setTimeout(() => setSavedFlash(false), 2000);
+  }, [messages, saveItem]);
 
   /* auto-scroll */
   useEffect(() => {
@@ -385,9 +406,14 @@ export default function QABuddyPanel() {
           </div>
         </div>
         {messages.length > 0 && (
-          <button className="qab-new-chat-btn" onClick={clearChat}>
-            ✦ New Chat
-          </button>
+          <div style={{ display:'flex', gap:'8px' }}>
+            <button className={`history-save-btn${savedFlash ? ' saved' : ''}`} onClick={handleSave}>
+              {savedFlash ? '✓ Saved' : '💾 Save'}
+            </button>
+            <button className="qab-new-chat-btn" onClick={clearChat}>
+              ✦ New Chat
+            </button>
+          </div>
         )}
       </div>
 

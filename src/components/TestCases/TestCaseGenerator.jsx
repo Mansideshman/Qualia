@@ -1,5 +1,7 @@
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { useConfig } from '../../context/ConfigContext';
+import { useHistory } from '../../context/HistoryContext';
+import '../History/HistoryPanel.css';
 import TestCaseService, { TEST_TYPES } from '../../services/testCaseService';
 import { exportTestCases } from '../../utils/testCaseExporter';
 import { extractFileContent, describeImageViaVision } from '../../utils/fileExtractor';
@@ -106,6 +108,8 @@ function EditModal({ tc, onSave, onClose }) {
 /* ── Main Component ─────────────────────────────────────────── */
 export default function TestCaseGenerator() {
   const { config } = useConfig();
+  const { saveItem, pendingRestore, clearPendingRestore } = useHistory();
+  const [savedFlash, setSavedFlash] = useState(false);
 
   /* input state */
   const [inputMode, setInputMode]   = useState(INPUT_MODES.PRD);
@@ -143,6 +147,26 @@ export default function TestCaseGenerator() {
   /* table state */
   const [selected, setSelected] = useState(new Set());
   const [editingTc, setEditingTc] = useState(null);
+
+  useEffect(() => {
+    if (pendingRestore?.type === 'testcases') {
+      const d = pendingRestore.data;
+      if (d.requirements)  setRequirements(d.requirements);
+      if (d.issueKey)      setIssueKey(d.issueKey);
+      if (d.productName)   setProductName(d.productName);
+      if (d.inputMode)     setInputMode(d.inputMode);
+      if (d.testCases)     setTestCases(d.testCases);
+      clearPendingRestore();
+    }
+  }, [pendingRestore, clearPendingRestore]);
+
+  const handleSave = useCallback(() => {
+    if (!testCases.length) return;
+    const title = productName || issueKey || requirements.slice(0, 60) || 'Test Cases';
+    saveItem('testcases', title, { productName, inputMode, requirements, issueKey, testCases });
+    setSavedFlash(true);
+    setTimeout(() => setSavedFlash(false), 2000);
+  }, [testCases, productName, issueKey, inputMode, requirements, saveItem]);
   const [defectTarget, setDefectTarget] = useState(null);
   const [filterType, setFilterType] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
@@ -686,6 +710,9 @@ export default function TestCaseGenerator() {
               </h2>
               <p>Click ▸ on a row to expand details • Use checkboxes to select for targeted export</p>
             </div>
+            <button className={`history-save-btn${savedFlash ? ' saved' : ''}`} onClick={handleSave}>
+              {savedFlash ? '✓ Saved' : '💾 Save'}
+            </button>
           </div>
 
           {modelUsed && (

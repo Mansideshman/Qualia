@@ -1,4 +1,6 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
+import { useHistory } from '../../context/HistoryContext';
+import '../History/HistoryPanel.css';
 import JSZip from 'jszip';
 import { useConfig } from '../../context/ConfigContext';
 import FrameworkForgeService, {
@@ -39,6 +41,8 @@ function delay(ms) {
 }
 
 export default function FrameworkForgePanel() {
+  const { saveItem, pendingRestore, clearPendingRestore } = useHistory();
+  const [savedFlash, setSavedFlash] = useState(false);
   const { config: appConfig } = useConfig();
   const apiKey = appConfig.groq?.apiKey;
 
@@ -60,6 +64,23 @@ export default function FrameworkForgePanel() {
   const [isRateLimit, setIsRateLimit] = useState(false);
 
   const selectedIdRef = useRef(null);
+
+  useEffect(() => {
+    if (pendingRestore?.type === 'framework') {
+      const d = pendingRestore.data;
+      if (d.config) setConfig(d.config);
+      if (d.tree)   setTree(d.tree);
+      clearPendingRestore();
+    }
+  }, [pendingRestore, clearPendingRestore]);
+
+  const handleSave = useCallback(() => {
+    if (!tree.length) return;
+    const title = `${config.framework} · ${config.language}`;
+    saveItem('framework', title, { config, tree });
+    setSavedFlash(true);
+    setTimeout(() => setSavedFlash(false), 2000);
+  }, [tree, config, saveItem]);
 
   /* ── Framework change ───────────────────────────────────── */
   const handleFrameworkChange = useCallback((fwId) => {
@@ -402,6 +423,9 @@ export default function FrameworkForgePanel() {
             {modelUsed && (
               <span className="ff-model-chip">{modelUsed.replace('llama-', 'llama ').replace('-versatile', '')}</span>
             )}
+            <button className={`history-save-btn${savedFlash ? ' saved' : ''}`} onClick={handleSave}>
+              {savedFlash ? '✓ Saved' : '💾 Save'}
+            </button>
             <button className="ff-zip-btn" onClick={handleDownloadZip}>
               ⬇ Download ZIP
             </button>

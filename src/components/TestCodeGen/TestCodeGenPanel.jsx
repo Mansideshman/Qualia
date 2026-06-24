@@ -1,4 +1,6 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
+import { useHistory } from '../../context/HistoryContext';
+import '../History/HistoryPanel.css';
 import { useConfig } from '../../context/ConfigContext';
 import TestCodeGenService, { FRAMEWORKS } from '../../services/testCodeGenService';
 import '../styles/TestCodeGen.css';
@@ -34,6 +36,8 @@ const LANG_COLORS = {
 };
 
 export default function TestCodeGenPanel() {
+  const { saveItem, pendingRestore, clearPendingRestore } = useHistory();
+  const [savedFlash, setSavedFlash] = useState(false);
   const { config } = useConfig();
 
   /* ── Framework / mode state ──────────────────────── */
@@ -66,6 +70,25 @@ export default function TestCodeGenPanel() {
   const [result,      setResult]      = useState(null);
   const [activeFile,  setActiveFile]  = useState(0);
   const [uiDesc,      setUiDesc]      = useState('');
+
+  useEffect(() => {
+    if (pendingRestore?.type === 'codegen') {
+      const d = pendingRestore.data;
+      if (d.framework) setFramework(d.framework);
+      if (d.language)  setLanguage(d.language);
+      if (d.flow)      setFlow(d.flow);
+      if (d.result)    setResult(d.result);
+      clearPendingRestore();
+    }
+  }, [pendingRestore, clearPendingRestore]);
+
+  const handleSave = useCallback(() => {
+    if (!result?.length) return;
+    const title = `${framework} · ${language} — ${flow.slice(0, 40) || 'Code'}`;
+    saveItem('codegen', title, { framework, language, flow, result: { files: result } });
+    setSavedFlash(true);
+    setTimeout(() => setSavedFlash(false), 2000);
+  }, [result, framework, language, flow, saveItem]);
 
   /* ── Selector Lab state ───────────────────────────── */
   const [labHtml,    setLabHtml]    = useState('');
@@ -436,9 +459,14 @@ export default function TestCodeGenPanel() {
               <span style={{ color: fw.color }}>{fw.icon}</span>
               {result.length} file{result.length !== 1 ? 's' : ''} generated — {fw.label} ({language})
             </div>
-            <button className="tcg2-download-all" onClick={downloadAll}>
-              ⬇ Download All Files
-            </button>
+            <div style={{ display:'flex', gap:'8px', alignItems:'center' }}>
+              <button className={`history-save-btn${savedFlash ? ' saved' : ''}`} onClick={handleSave}>
+                {savedFlash ? '✓ Saved' : '💾 Save'}
+              </button>
+              <button className="tcg2-download-all" onClick={downloadAll}>
+                ⬇ Download All Files
+              </button>
+            </div>
           </div>
 
           {/* File tab bar */}

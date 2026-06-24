@@ -7,6 +7,7 @@ import React, { useState, useEffect } from 'react';
 import ErrorBoundary from './ErrorBoundary';
 import { ConfigProvider, useConfig } from '../context/ConfigContext';
 import { NotificationProvider } from '../context/NotificationContext';
+import { HistoryProvider, useHistory } from '../context/HistoryContext';
 import Header from './Layout/Header';
 import Sidebar from './Layout/Sidebar';
 import MainContainer from './Layout/MainContainer';
@@ -21,6 +22,7 @@ import APIContractForgePanel from './APIContractForge/APIContractForgePanel';
 import TestCodeGenPanel from './TestCodeGen/TestCodeGenPanel';
 import FrameworkForgePanel from './FrameworkForge/FrameworkForgePanel';
 import QABuddyPanel from './QABuddy/QABuddyPanel';
+import HistoryPanel from './History/HistoryPanel';
 import './App.css';
 
 /**
@@ -29,6 +31,7 @@ import './App.css';
 function AppContent() {
   const [activeTab, setActiveTab] = useState('qabuddy');
   const { isValidated } = useConfig();
+  const { triggerRestore } = useHistory();
   const [isDarkMode, setIsDarkMode] = useState(false);
 
   // Load dark mode preference
@@ -57,18 +60,24 @@ function AppContent() {
     applyTheme(newMode);
   };
 
+  const handleHistoryResume = (item) => {
+    triggerRestore(item.type, item.data);
+    setActiveTab(item.type);
+  };
+
   const renderContent = () => {
     if (!isValidated || activeTab === 'settings') {
       return <SettingsPanel onConfigSaved={() => setActiveTab('generation')} />;
     }
-    if (activeTab === 'qabuddy')    return <QABuddyPanel />;
+    if (activeTab === 'history')   return <HistoryPanel onResume={handleHistoryResume} />;
+    if (activeTab === 'qabuddy')   return <QABuddyPanel />;
     if (activeTab === 'testcases') return <TestCaseGenerator />;
     if (activeTab === 'strategy')  return <TestStrategyGeneratorPanel />;
     if (activeTab === 'metrics')   return <TestMetricsGenerator />;
     if (activeTab === 'defect')    return <DefectRadarPanel />;
     if (activeTab === 'apiforge')  return <APIContractForgePanel />;
-    if (activeTab === 'codegen')    return <TestCodeGenPanel />;
-    if (activeTab === 'framework')  return <FrameworkForgePanel />;
+    if (activeTab === 'codegen')   return <TestCodeGenPanel />;
+    if (activeTab === 'framework') return <FrameworkForgePanel />;
     return <GenerationPanel />;
   };
 
@@ -97,7 +106,9 @@ export default function App() {
     <ErrorBoundary>
       <NotificationProvider>
         <ConfigProvider>
-          <AppContent />
+          <HistoryProvider>
+            <AppContent />
+          </HistoryProvider>
         </ConfigProvider>
       </NotificationProvider>
     </ErrorBoundary>
